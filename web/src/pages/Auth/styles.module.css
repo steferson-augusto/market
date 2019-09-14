@@ -1,0 +1,70 @@
+.body {
+    min-width: 100%;
+    min-height: 100% !important;
+    background-color: #eee;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.img {
+    padding-top: 40px;
+    padding-bottom: 8%;
+    height: 100px;
+    width: 90px;
+}
+
+.input {
+    width: 300px;
+    margin-bottom: 20px;
+}
+
+.button {
+    width: 150px;
+}
+
+.menuBottom {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.menuBottom > .button {
+    width: 300px;
+}
+
+.wrapper {
+    position: relative;
+}
+
+.buttonProgress {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -6px;
+    margin-left: -12px;
+}
+
+.error {
+    font-size: 12px;
+    font-weight: bold;
+    color: red;
+}
+
+.text {
+    font-size: 28px;
+    text-align: center;
+    font-weight: bold;
+    color: #555;
+}
+
+.text2 {
+    font-size: 18px;
+    text-align: center;
+    font-weight: bold;
+    color: #555;
+}
