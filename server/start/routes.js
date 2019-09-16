@@ -34,6 +34,7 @@ Route.get('/users/:id', 'UserController.show').middleware('auth')
 //========================= Admin - Marks =========================
 Route.get('/admin/marks', 'adminControllers/MarkController.index').middleware(['auth', 'admin'])
 Route.post('/admin/marks', 'adminControllers/MarkController.store').middleware(['auth', 'admin'])
+Route.put('/admin/marks/:id', 'adminControllers/MarkController.update').middleware(['auth', 'admin'])
 
 //==================== View - Confirmação de email ====================
 Route.get('register/confirm', ({ view }) => {

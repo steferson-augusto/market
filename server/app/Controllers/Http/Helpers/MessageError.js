@@ -15,6 +15,10 @@ const MessageError = {
         field: 'general',
         message: 'Você deve ser administrador para realizar esta operação',
     }],
+    notFound: [{
+        field: 'general',
+        message: 'O item solicitado não foi encontrado',
+    }],
 }
 
 module.exports = MessageError
