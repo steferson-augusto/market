@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { PagingState, IntegratedPaging, EditingState } from '@devexpress/dx-react-grid'
+import { PagingState, IntegratedPaging, EditingState, SortingState } from '@devexpress/dx-react-grid'
 import {
     Grid,
     Table,
@@ -20,6 +20,7 @@ const Mark = () => {
     const [addedRows, setAddedRows] = useState([])
     const [rowChanges, setRowChanges] = useState({})
     const [editingRowIds, getEditingRowIds] = useState([])
+    const [sorting, setSorting] = useState([{ columnName: 'name', direction: 'asc' }]);
     const [query, setQuery] = React.useState({
         total: 0,
         page: 1,
@@ -31,7 +32,7 @@ const Mark = () => {
     const getData = async () => {
         setLoading(true)
         try {
-            const queryParams = `page=${query.page}&perPage=${query.perPage}`
+            const queryParams = `page=${query.page}&perPage=${query.perPage}&columnName=${sorting.columnName}&direction=${sorting.direction}`
             const { data: { data, ...rest } } = await api.get(`/admin/marks?${queryParams}`)
             setRows(data)
             setQuery(rest)
@@ -50,7 +51,6 @@ const Mark = () => {
     }, [])
 
     const pageSizes = [5, 10, 15, 20]
-    // const sorting = ['id', 'name', 'active']
     const columns = [
         { name: 'id', title: 'ID' },
         { name: 'name', title: 'Marca' },
@@ -58,18 +58,21 @@ const Mark = () => {
         { name: 'description', title: 'Descrição' },
     ]
 
+    const onSortingChange = value => {
+        console.log(value)
+    }
+
     const onPageSizeChange = size => {
         setQuery({ ...query, perPage: size })
         getData()
     }
 
-    const changeAddedRows = (value) => {
+    const changeAddedRows = value => {
         const initialized = value.map(row => (Object.keys(row).length ? row : { active: 1 }))
         setAddedRows(initialized)
     }
 
     const commitChanges = async ({ added, changed }) => {
-        console.log(added)
         console.log(changed)
         if (added) {
             setLoading(true)
@@ -82,7 +85,20 @@ const Mark = () => {
             setLoading(false)
         }
         if (changed) {
-            console.log('changed')
+            const [index] = Object.keys(changed)
+            if (changed[index]) {
+                setLoading(true)
+                const { id } = rows[index]
+                try {
+                    await api.put(`/admin/marks/${id}`, changed[index])
+                    const data = [...rows]
+                    data[index] = { ...data[index], ...changed[index] }
+                    setRows(data)
+                } catch ({ response: { data: error } }) {
+                    console.log('ERRO: ', error)
+                }
+                setLoading(false)
+            }
         }
     }
 
@@ -110,6 +126,10 @@ const Mark = () => {
                     onAddedRowsChange={changeAddedRows}
                     onCommitChanges={commitChanges}
                     columnExtensions={[{ columnName: 'id', editingEnabled: false }]}
+                />
+                <SortingState
+                    sorting={sorting}
+                    onSortingChange={onSortingChange}
                 />
                 <IntegratedPaging />
                 <Table />
