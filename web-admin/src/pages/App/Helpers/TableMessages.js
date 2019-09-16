@@ -1,5 +1,11 @@
 import React from 'react'
 import { DataTypeProvider } from '@devexpress/dx-react-grid'
+import { TableEditRow } from '@devexpress/dx-react-grid-material-ui'
+import { withStyles } from '@material-ui/core/styles'
+import Input from '@material-ui/core/Input'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import TableCell from '@material-ui/core/TableCell'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
@@ -104,3 +110,61 @@ export const Command = ({ id, onExecute }) => {
     )
 }
 
+
+const styles = theme => ({
+    lookupEditCell: {
+        padding: theme.spacing(1),
+    },
+    dialog: {
+        width: 'calc(100% - 16px)',
+    },
+    inputRoot: {
+        width: '100%',
+    },
+})
+
+const availableValues = {
+    active: [
+        {
+            value: 0,
+            label: 'Inativo'
+        },
+        {
+            value: 1,
+            label: 'Ativo'
+        },
+    ],
+}
+
+const LookupEditCellBase = ({ availableColumnValues, value, onValueChange, classes }) => (
+    <TableCell
+        className={classes.lookupEditCell}
+    >
+        <Select
+            value={value}
+            onChange={event => onValueChange(event.target.value)}
+            input={(
+                <Input
+                    classes={{ root: classes.inputRoot }}
+                />
+            )}
+        >
+            {availableColumnValues.map((item, index) => (
+                <MenuItem key={`${index}`} value={item.value}>
+                    {item.label}
+                </MenuItem>
+            ))}
+        </Select>
+    </TableCell>
+)
+
+const LookupEditCell = withStyles(styles, { name: 'ControlledModeDemo' })(LookupEditCellBase)
+
+export const EditCell = props => {
+    const { column } = props
+    const availableColumnValues = availableValues[column.name]
+    if (availableColumnValues) {
+        return <LookupEditCell {...props} availableColumnValues={availableColumnValues} />
+    }
+    return <TableEditRow.Cell {...props} />
+}

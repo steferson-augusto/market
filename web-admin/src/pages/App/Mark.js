@@ -8,77 +8,11 @@ import {
     TableEditRow,
     TableEditColumn,
 } from '@devexpress/dx-react-grid-material-ui'
-import { withStyles } from '@material-ui/core/styles'
-import Input from '@material-ui/core/Input'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import TableCell from '@material-ui/core/TableCell'
 import Paper from '@material-ui/core/Paper'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import LinearProgress from '@material-ui/core/LinearProgress'
 
 import api from '../../services/api'
-import { pagingPanelMessages, ActiveTypeProvider, Command } from './Helpers/TableMessages'
-
-const styles = theme => ({
-    lookupEditCell: {
-        padding: theme.spacing(1),
-    },
-    dialog: {
-        width: 'calc(100% - 16px)',
-    },
-    inputRoot: {
-        width: '100%',
-    },
-})
-
-const availableValues = {
-    product: [],
-    region: [],
-    customer: [],
-}
-
-const LookupEditCellBase = ({ availableColumnValues, value, onValueChange, classes }) => (
-    <TableCell
-        className={classes.lookupEditCell}
-    >
-        <Select
-            value={value}
-            onChange={event => onValueChange(event.target.value)}
-            input={(
-                <Input
-                    classes={{ root: classes.inputRoot }}
-                />
-            )}
-        >
-            {availableColumnValues.map(item => (
-                <MenuItem key={item} value={item}>
-                    {item}
-                </MenuItem>
-            ))}
-        </Select>
-    </TableCell>
-);
-export const LookupEditCell = withStyles(styles, { name: 'ControlledModeDemo' })(LookupEditCellBase)
-
-// const Cell = (props) => {
-//     const { column } = props;
-//     if (column.name === 'discount') {
-//         return <ProgressBarCell {...props} />;
-//     }
-//     if (column.name === 'amount') {
-//         return <HighlightedCell {...props} />;
-//     }
-//     return <Table.Cell {...props} />;
-// };
-
-const EditCell = (props) => {
-    const { column } = props;
-    const availableColumnValues = availableValues[column.name];
-    if (availableColumnValues) {
-        return <LookupEditCell {...props} availableColumnValues={availableColumnValues} />;
-    }
-    return <TableEditRow.Cell {...props} />;
-}
+import { pagingPanelMessages, ActiveTypeProvider, Command, EditCell } from './Helpers/TableMessages'
 
 const Mark = () => {
     const [loading, setLoading] = useState(true)
@@ -121,38 +55,40 @@ const Mark = () => {
         { name: 'id', title: 'ID' },
         { name: 'name', title: 'Marca' },
         { name: 'active', title: 'Status' },
+        { name: 'description', title: 'Descrição' },
     ]
 
     const onPageSizeChange = size => {
-        console.log('onPageSizeChange')
         setQuery({ ...query, perPage: size })
         getData()
     }
 
     const changeAddedRows = (value) => {
-        const initialized = value.map(row => (Object.keys(row).length ? row : { city: 'Tokio' }));
-        setAddedRows(initialized);
-    };
-
-    const deleteRows = (deletedIds) => {
-        console.log('deleteRows')
+        const initialized = value.map(row => (Object.keys(row).length ? row : { active: 1 }))
+        setAddedRows(initialized)
     }
 
-    const commitChanges = props => {
-        console.log(props)
-        if (props.added) {
-            console.log('added')
+    const commitChanges = async ({ added, changed }) => {
+        console.log(added)
+        console.log(changed)
+        if (added) {
+            setLoading(true)
+            try {
+                const { data: { data } } = await api.post(`/admin/marks`, added[0])
+                setRows([data, ...rows])
+            } catch ({ response: { data: error } }) {
+                console.log('ERRO: ', error)
+            }
+            setLoading(false)
         }
-        if (props.changed) {
+        if (changed) {
             console.log('changed')
-        }
-        if (props.deleted) {
-            console.log('deleted')
         }
     }
 
     return (
         <Paper style={{ position: 'relative' }}>
+            {loading && <LinearProgress />}
             <Grid
                 rows={rows}
                 columns={columns}
@@ -173,18 +109,16 @@ const Mark = () => {
                     addedRows={addedRows}
                     onAddedRowsChange={changeAddedRows}
                     onCommitChanges={commitChanges}
+                    columnExtensions={[{ columnName: 'id', editingEnabled: false }]}
                 />
                 <IntegratedPaging />
                 <Table />
                 <TableHeaderRow />
-                <TableEditRow
-                    cellComponent={EditCell}
-                />
+                <TableEditRow cellComponent={EditCell} />
                 <TableEditColumn
                     width={170}
                     showAddCommand={!addedRows.length}
                     showEditCommand
-                    showDeleteCommand
                     commandComponent={Command}
                 />
                 <PagingPanel
@@ -192,7 +126,6 @@ const Mark = () => {
                     messages={pagingPanelMessages}
                 />
             </Grid>
-            {loading && <CircularProgress />}
         </Paper>
     )
 }
