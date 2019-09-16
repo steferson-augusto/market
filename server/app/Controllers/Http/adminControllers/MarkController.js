@@ -22,8 +22,10 @@ class MarkController {
 
     async index({ request, response }) {
         try {
-            const { page, perPage } = request.only(['page', 'perPage'])
-            const data = await Mark.query().paginate(page, perPage)
+            const { page, perPage, sorting, direction } = request.only(['page', 'perPage', 'sorting', 'direction'])
+            const data = await Mark.query()
+                .orderBy(sorting, direction)
+                .paginate(page, perPage)
             return response.status(200).send(data)
         } catch {
             return response.status(500).send({ error: MessageError.requestFail })
