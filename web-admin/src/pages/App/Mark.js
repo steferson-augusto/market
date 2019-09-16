@@ -20,7 +20,7 @@ const Mark = () => {
     const [addedRows, setAddedRows] = useState([])
     const [rowChanges, setRowChanges] = useState({})
     const [editingRowIds, getEditingRowIds] = useState([])
-    const [sorting, setSorting] = useState([{ columnName: 'name', direction: 'asc' }]);
+    const [sorting, setSorting] = useState([{ columnName: 'name', direction: 'asc' }])
     const [query, setQuery] = React.useState({
         total: 0,
         page: 1,
@@ -32,23 +32,26 @@ const Mark = () => {
     const getData = async () => {
         setLoading(true)
         try {
-            const queryParams = `page=${query.page}&perPage=${query.perPage}&columnName=${sorting.columnName}&direction=${sorting.direction}`
+            const { columnName, direction } = sorting[0]
+            const queryParams = `page=${query.page}&perPage=${query.perPage}&sorting=${columnName}&direction=${direction}`
             const { data: { data, ...rest } } = await api.get(`/admin/marks?${queryParams}`)
             setRows(data)
             setQuery(rest)
-            setLoading(false)
-            console.log(rows)
-            console.log(rest)
-        } catch (error) {
+        } catch ({ response: { data: error } }) {
             console.log(error)
-            setLoading(false)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
         getData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        getData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sorting])
 
     const pageSizes = [5, 10, 15, 20]
     const columns = [
@@ -57,10 +60,6 @@ const Mark = () => {
         { name: 'active', title: 'Status' },
         { name: 'description', title: 'Descrição' },
     ]
-
-    const onSortingChange = value => {
-        console.log(value)
-    }
 
     const onPageSizeChange = size => {
         setQuery({ ...query, perPage: size })
@@ -73,7 +72,6 @@ const Mark = () => {
     }
 
     const commitChanges = async ({ added, changed }) => {
-        console.log(changed)
         if (added) {
             setLoading(true)
             try {
@@ -129,11 +127,11 @@ const Mark = () => {
                 />
                 <SortingState
                     sorting={sorting}
-                    onSortingChange={onSortingChange}
+                    onSortingChange={setSorting}
                 />
                 <IntegratedPaging />
                 <Table />
-                <TableHeaderRow />
+                <TableHeaderRow showSortingControls />
                 <TableEditRow cellComponent={EditCell} />
                 <TableEditColumn
                     width={170}
