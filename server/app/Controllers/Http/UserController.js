@@ -27,10 +27,7 @@ class UserController {
         const aux = data.name ? data.name.replace(/\s/g, '') : ''
         const validation = await validateAll({ ...data, name: aux }, rules, messages)
 
-        if (validation.fails()) {
-            const error = validation.messages()
-            return { error }
-        }
+        if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
         data.confirmation_token = randomString({ length: 40 })
         delete data.password_confirmation
