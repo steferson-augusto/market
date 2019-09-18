@@ -110,7 +110,6 @@ export const Command = ({ id, onExecute }) => {
     )
 }
 
-
 const styles = theme => ({
     lookupEditCell: {
         padding: theme.spacing(1),

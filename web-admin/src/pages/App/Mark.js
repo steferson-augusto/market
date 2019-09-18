@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react"
-import { PagingState, IntegratedPaging, EditingState, SortingState } from '@devexpress/dx-react-grid'
+import { useDispatch, useSelector } from "react-redux"
+import {
+    PagingState,
+    EditingState,
+    SortingState,
+    CustomPaging,
+    FilteringState,
+    IntegratedFiltering,
+} from '@devexpress/dx-react-grid'
 import {
     Grid,
     Table,
@@ -7,53 +15,22 @@ import {
     PagingPanel,
     TableEditRow,
     TableEditColumn,
+    TableFilterRow,
 } from '@devexpress/dx-react-grid-material-ui'
 import Paper from '@material-ui/core/Paper'
 import LinearProgress from '@material-ui/core/LinearProgress'
 
 import api from '../../services/api'
+import useDebounce from '../../services/hooks/useDebounce'
+import { SET_MARK } from '../../store/actionTypes'
 import { pagingPanelMessages, ActiveTypeProvider, Command, EditCell } from './Helpers/TableMessages'
 
 const Mark = () => {
+    const dispatch = useDispatch()
+    const { data, total, page, perPage, sorting, editingRowIds, addedRows, rowChanges } = useSelector(state => state.marks)
     const [loading, setLoading] = useState(true)
-    const [rows, setRows] = useState([])
-    const [addedRows, setAddedRows] = useState([])
-    const [rowChanges, setRowChanges] = useState({})
-    const [editingRowIds, getEditingRowIds] = useState([])
-    const [sorting, setSorting] = useState([{ columnName: 'name', direction: 'asc' }])
-    const [query, setQuery] = React.useState({
-        total: 0,
-        page: 1,
-        perPage: 10,
-        sorting: 'name',
-        lastPage: null
-    })
-
-    const getData = async () => {
-        setLoading(true)
-        try {
-            const { columnName, direction } = sorting[0]
-            const queryParams = `page=${query.page}&perPage=${query.perPage}&sorting=${columnName}&direction=${direction}`
-            const { data: { data, ...rest } } = await api.get(`/admin/marks?${queryParams}`)
-            setRows(data)
-            setQuery(rest)
-        } catch ({ response: { data: error } }) {
-            console.log(error)
-        }
-        setLoading(false)
-    }
-
-    useEffect(() => {
-        getData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    useEffect(() => {
-        getData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sorting])
-
-    const pageSizes = [5, 10, 15, 20]
+    const [filters, setFilters] = useState([])
+    const pageSizes = [1, 5, 10, 15, 20]
     const columns = [
         { name: 'id', title: 'ID' },
         { name: 'name', title: 'Marca' },
@@ -61,22 +38,51 @@ const Mark = () => {
         { name: 'description', title: 'Descrição' },
     ]
 
-    const onPageSizeChange = size => {
-        setQuery({ ...query, perPage: size })
+    const debouncedSearchTerm = useDebounce(filters, 500)
+
+    useEffect(
+        () => {
+          // Make sure we have a value (user has entered something in input)
+          if (debouncedSearchTerm) {
+            console.log('searching')
+            console.log(filters)
+            console.log('end searching')
+          } else {
+            console.log('results []')
+          }
+        },
+        
+        [debouncedSearchTerm]
+      )
+
+    useEffect(() => {
+        const getData = async () => {
+            console.log('get data')
+            setLoading(true)
+            try {
+                const { columnName, direction } = sorting[0]
+                const query = `page=${page + 1}&perPage=${perPage}&sorting=${columnName}&direction=${direction}`
+                const { data: { data: result, total } } = await api.get(`/admin/marks?${query}`)
+                dispatch({ type: SET_MARK, payload: { data: result, total } })
+            } catch ({ response: { data: error } }) {
+                console.log(error)
+            }
+            setLoading(false)
+        }
         getData()
-    }
+    }, [sorting, page, perPage])
 
     const changeAddedRows = value => {
-        const initialized = value.map(row => (Object.keys(row).length ? row : { active: 1 }))
-        setAddedRows(initialized)
+        const addedRows = value.map(row => (Object.keys(row).length ? row : { active: 1 }))
+        dispatch({ type: SET_MARK, payload: { addedRows } })
     }
 
     const commitChanges = async ({ added, changed }) => {
         if (added) {
             setLoading(true)
             try {
-                const { data: { data } } = await api.post(`/admin/marks`, added[0])
-                setRows([data, ...rows])
+                const { data: { data: result } } = await api.post(`/admin/marks`, added[0])
+                dispatch({ type: SET_MARK, payload: { data: [result, ...data] } })
             } catch ({ response: { data: error } }) {
                 console.log('ERRO: ', error)
             }
@@ -86,12 +92,12 @@ const Mark = () => {
             const [index] = Object.keys(changed)
             if (changed[index]) {
                 setLoading(true)
-                const { id } = rows[index]
+                const { id } = data[index]
                 try {
                     await api.put(`/admin/marks/${id}`, changed[index])
-                    const data = [...rows]
-                    data[index] = { ...data[index], ...changed[index] }
-                    setRows(data)
+                    const rows = [...data]
+                    rows[index] = { ...rows[index], ...changed[index] }
+                    dispatch({ type: SET_MARK, payload: { data: rows } })
                 } catch ({ response: { data: error } }) {
                     console.log('ERRO: ', error)
                 }
@@ -100,26 +106,28 @@ const Mark = () => {
         }
     }
 
+    const changeState = field => value => dispatch({ type: SET_MARK, payload: { [field]: value } })
+
     return (
         <Paper style={{ position: 'relative' }}>
             {loading && <LinearProgress />}
             <Grid
-                rows={rows}
+                rows={data}
                 columns={columns}
             >
                 <PagingState
-                    currentPage={query.page}
-                    onCurrentPageChange={() => console.log('onCurrentPageChange')}
-                    pageSize={query.perPage}
-                    onPageSizeChange={size => onPageSizeChange(size)}
+                    currentPage={page}
+                    onCurrentPageChange={changeState('page')}
+                    pageSize={perPage}
+                    onPageSizeChange={changeState('perPage')}
                 />
                 <ActiveTypeProvider for={["active"]} />
 
                 <EditingState
                     editingRowIds={editingRowIds}
-                    onEditingRowIdsChange={getEditingRowIds}
+                    onEditingRowIdsChange={changeState('editingRowIds')}
                     rowChanges={rowChanges}
-                    onRowChangesChange={setRowChanges}
+                    onRowChangesChange={changeState('rowChanges')}
                     addedRows={addedRows}
                     onAddedRowsChange={changeAddedRows}
                     onCommitChanges={commitChanges}
@@ -127,9 +135,8 @@ const Mark = () => {
                 />
                 <SortingState
                     sorting={sorting}
-                    onSortingChange={setSorting}
+                    onSortingChange={changeState('sorting')}
                 />
-                <IntegratedPaging />
                 <Table />
                 <TableHeaderRow showSortingControls />
                 <TableEditRow cellComponent={EditCell} />
@@ -143,6 +150,13 @@ const Mark = () => {
                     pageSizes={pageSizes}
                     messages={pagingPanelMessages}
                 />
+                <FilteringState
+                    filters={filters}
+                    onFiltersChange={f => setFilters(f)}
+                />
+                <CustomPaging totalCount={total} />
+                <IntegratedFiltering />
+                <TableFilterRow />
             </Grid>
         </Paper>
     )
