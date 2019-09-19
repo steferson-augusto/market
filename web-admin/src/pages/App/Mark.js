@@ -6,6 +6,7 @@ import {
     SortingState,
     CustomPaging,
     FilteringState,
+    DataTypeProvider,
     IntegratedFiltering,
 } from '@devexpress/dx-react-grid'
 import {
@@ -23,13 +24,13 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import api from '../../services/api'
 import useDebounce from '../../services/hooks/useDebounce'
 import { SET_MARK } from '../../store/actionTypes'
-import { pagingPanelMessages, ActiveTypeProvider, Command, EditCell } from './Helpers/TableMessages'
+import { pagingPanelMessages, ActiveTypeProvider, Command, EditCell, NumberEditor } from './Helpers/TableMessages'
 
 const Mark = () => {
     const dispatch = useDispatch()
-    const { data, total, page, perPage, sorting, editingRowIds, addedRows, rowChanges } = useSelector(state => state.marks)
+    const { data, total, editingRowIds, addedRows, rowChanges, filters, ...params } = useSelector(state => state.marks)
     const [loading, setLoading] = useState(true)
-    const [filters, setFilters] = useState([])
+    // const [filters, setFilters] = useState([])
     const pageSizes = [1, 5, 10, 15, 20]
     const columns = [
         { name: 'id', title: 'ID' },
@@ -37,40 +38,52 @@ const Mark = () => {
         { name: 'active', title: 'Status' },
         { name: 'description', title: 'Descrição' },
     ]
+    const numberFilterOperations = [
+        'equal',
+        'notEqual',
+        'greaterThan',
+        'greaterThanOrEqual',
+        'lessThan',
+        'lessThanOrEqual',
+    ]
 
     const debouncedSearchTerm = useDebounce(filters, 500)
 
+    const getData = async () => {
+        console.log(filters)
+        setLoading(true)
+        try {
+            // const { columnName, direction } = sorting[0]
+            // const query = `page=${page + 1}&perPage=${perPage}&sorting=${columnName}&direction=${direction}`
+            console.log(filters)
+            const { data: { data: result, total } } = await api.post(`/admin/marks/filter`, {...params, filters})
+            dispatch({ type: SET_MARK, payload: { data: result, total } })
+        } catch ({ response: { data: error } }) {
+            console.log(error)
+        }
+        setLoading(false)
+    }
+
     useEffect(
         () => {
-          // Make sure we have a value (user has entered something in input)
-          if (debouncedSearchTerm) {
-            console.log('searching')
-            console.log(filters)
-            console.log('end searching')
-          } else {
-            console.log('results []')
-          }
+            // Make sure we have a value (user has entered something in input)
+            if (debouncedSearchTerm) {
+                console.log('searching')
+                // dispatch({ type: SET_MARK, payload: { filters } })
+                getData()
+                console.log('end searching')
+            } else {
+                console.log('results []')
+            }
         },
-        
+
         [debouncedSearchTerm]
-      )
+    )
 
     useEffect(() => {
-        const getData = async () => {
-            console.log('get data')
-            setLoading(true)
-            try {
-                const { columnName, direction } = sorting[0]
-                const query = `page=${page + 1}&perPage=${perPage}&sorting=${columnName}&direction=${direction}`
-                const { data: { data: result, total } } = await api.get(`/admin/marks?${query}`)
-                dispatch({ type: SET_MARK, payload: { data: result, total } })
-            } catch ({ response: { data: error } }) {
-                console.log(error)
-            }
-            setLoading(false)
-        }
+        
         getData()
-    }, [sorting, page, perPage])
+    }, [params.perPage, params.page, params.sorting])
 
     const changeAddedRows = value => {
         const addedRows = value.map(row => (Object.keys(row).length ? row : { active: 1 }))
@@ -116,12 +129,17 @@ const Mark = () => {
                 columns={columns}
             >
                 <PagingState
-                    currentPage={page}
+                    currentPage={params.page}
                     onCurrentPageChange={changeState('page')}
-                    pageSize={perPage}
+                    pageSize={params.perPage}
                     onPageSizeChange={changeState('perPage')}
                 />
                 <ActiveTypeProvider for={["active"]} />
+                <DataTypeProvider
+                    for={['id']}
+                    availableFilterOperations={numberFilterOperations}
+                    editorComponent={NumberEditor}
+                />
 
                 <EditingState
                     editingRowIds={editingRowIds}
@@ -134,7 +152,7 @@ const Mark = () => {
                     columnExtensions={[{ columnName: 'id', editingEnabled: false }]}
                 />
                 <SortingState
-                    sorting={sorting}
+                    sorting={params.sorting}
                     onSortingChange={changeState('sorting')}
                 />
                 <Table />
@@ -152,11 +170,11 @@ const Mark = () => {
                 />
                 <FilteringState
                     filters={filters}
-                    onFiltersChange={f => setFilters(f)}
+                    onFiltersChange={changeState('filters')}
                 />
                 <CustomPaging totalCount={total} />
-                <IntegratedFiltering />
-                <TableFilterRow />
+
+                <TableFilterRow showFilterSelector />
             </Grid>
         </Paper>
     )

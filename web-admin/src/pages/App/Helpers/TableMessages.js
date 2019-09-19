@@ -30,11 +30,42 @@ import CancelIcon from '@material-ui/icons/Cancel'
 //     filterPlaceholder: 'Filter...',
 // };
 
+
+const style = {
+    numericInput: {
+        textAlign: 'right',
+        width: '100%',
+    },
+    select: {
+        width: '100%',
+    }
+}
+
 export const pagingPanelMessages = {
     showAll: 'Tudo',
     rowsPerPage: 'Itens por página',
     info: '{from} - {to} de {count}',
 }
+
+const ActiveEditorBase = ({ value="", onValueChange, classes }) => {
+    const handleChange = event => {
+        const { value: targetValue } = event.target
+        onValueChange(targetValue)
+    }
+    return (
+        <Select
+            className={classes.select}
+            value={value}
+            onChange={handleChange}
+        >
+            <MenuItem value={""}>{""}</MenuItem>
+            <MenuItem value={1}>Ativo</MenuItem>
+            <MenuItem value={0}>Inativo</MenuItem>
+        </Select>
+    )
+}
+
+const ActiveEditor = withStyles(style)(ActiveEditorBase)
 
 const ActiveFormatter = ({ value }) => (
     <b style={(value === 1) ? { color: 'green' } : (value === 0) ? { color: 'red' } : { color: 'grey' }}>
@@ -45,6 +76,8 @@ const ActiveFormatter = ({ value }) => (
 export const ActiveTypeProvider = props => (
     <DataTypeProvider
         formatterComponent={ActiveFormatter}
+        availableFilterOperations={['equal', 'notEqual']}
+        editorComponent={ActiveEditor}
         {...props}
     />
 )
@@ -167,3 +200,31 @@ export const EditCell = props => {
     }
     return <TableEditRow.Cell {...props} />
 }
+
+const NumberEditorBase = ({ value, onValueChange, classes }) => {
+    const handleChange = (event) => {
+        const { value: targetValue } = event.target
+        if (targetValue.trim() === '') {
+            onValueChange()
+            return
+        }
+        onValueChange(parseInt(targetValue, 10))
+    }
+    return (
+        <Input
+            type="number"
+            classes={{
+                input: classes.numericInput,
+            }}
+            fullWidth
+            value={value === undefined ? '' : value}
+            inputProps={{
+                min: 0,
+                placeholder: 'Filter...',
+            }}
+            onChange={handleChange}
+        />
+    )
+}
+
+export const NumberEditor = withStyles(style)(NumberEditorBase)

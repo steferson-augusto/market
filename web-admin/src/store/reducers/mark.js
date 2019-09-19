@@ -8,6 +8,7 @@ const initialState = {
     rowChanges: {},
     editingRowIds: [],
     addedRows: [],
+    filters: [],
     data: []
 }
 
