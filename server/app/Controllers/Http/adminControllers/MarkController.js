@@ -3,6 +3,7 @@
 const { validateAll } = use('Validator')
 const Mark = use("App/Models/Mark")
 const MessageError = use('./../Helpers/MessageError')
+const Operations = use('./../Helpers/Operations')
 
 const rules = {
     name: 'required|max:40|min:2',
@@ -22,13 +23,15 @@ class MarkController {
 
     async index({ request, response }) {
         try {
-            const { page, perPage, sorting, direction } = request.only(['page', 'perPage', 'sorting', 'direction'])
-            const data = await Mark.query()
-                .orderBy(sorting, direction)
-                .paginate(page, perPage)
+            const { page, perPage, filters, sorting: [{columnName, direction}] } = request.only(['page', 'perPage', 'sorting', 'filters'])
+            let query = Mark.query()
+            let data = Operations.operation(query, filters)
+            data = await data.orderBy(columnName, direction)
+                .paginate(page+1, perPage)
+                
             return response.status(200).send(data)
-        } catch {
-            return response.status(500).send({ error: MessageError.requestFail })
+        } catch (e) {
+            return response.status(500).send({ error: MessageError.requestFail, e })
         }
     }
 

@@ -32,7 +32,7 @@ Route.put('/users/:id', 'UserController.update').middleware('auth')
 Route.get('/users/:id', 'UserController.show').middleware('auth')
 
 //========================= Admin - Marks =========================
-Route.get('/admin/marks', 'adminControllers/MarkController.index').middleware(['auth', 'admin'])
+Route.post('/admin/marks/filter', 'adminControllers/MarkController.index').middleware(['auth', 'admin'])
 Route.post('/admin/marks', 'adminControllers/MarkController.store').middleware(['auth', 'admin'])
 Route.put('/admin/marks/:id', 'adminControllers/MarkController.update').middleware(['auth', 'admin'])
 
