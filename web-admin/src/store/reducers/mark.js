@@ -9,6 +9,7 @@ const initialState = {
     editingRowIds: [],
     addedRows: [],
     filters: [],
+    hiddenColumnNames: ['id', 'description'],
     data: []
 }
 

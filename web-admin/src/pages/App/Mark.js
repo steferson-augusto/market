@@ -7,7 +7,6 @@ import {
     CustomPaging,
     FilteringState,
     DataTypeProvider,
-    IntegratedFiltering,
 } from '@devexpress/dx-react-grid'
 import {
     Grid,
@@ -17,6 +16,9 @@ import {
     TableEditRow,
     TableEditColumn,
     TableFilterRow,
+    ColumnChooser,
+    TableColumnVisibility,
+    Toolbar,
 } from '@devexpress/dx-react-grid-material-ui'
 import Paper from '@material-ui/core/Paper'
 import LinearProgress from '@material-ui/core/LinearProgress'
@@ -24,38 +26,33 @@ import LinearProgress from '@material-ui/core/LinearProgress'
 import api from '../../services/api'
 import useDebounce from '../../services/hooks/useDebounce'
 import { SET_MARK } from '../../store/actionTypes'
-import { pagingPanelMessages, ActiveTypeProvider, Command, EditCell, NumberEditor } from './Helpers/TableMessages'
+import { 
+    pagingPanelMessages,
+    ActiveTypeProvider,
+    Command, EditCell,
+    NumberEditor,
+    pageSizes,
+    TableFilterRowMessages,
+    numberFilterOperations,
+} from './Helpers/TableMessages'
 
 const Mark = () => {
     const dispatch = useDispatch()
-    const { data, total, editingRowIds, addedRows, rowChanges, filters, ...params } = useSelector(state => state.marks)
+    const { data, total, editingRowIds, addedRows, rowChanges, filters, hiddenColumnNames, ...params } = useSelector(state => state.marks)
     const [loading, setLoading] = useState(true)
-    // const [filters, setFilters] = useState([])
-    const pageSizes = [1, 5, 10, 15, 20]
+
     const columns = [
         { name: 'id', title: 'ID' },
         { name: 'name', title: 'Marca' },
         { name: 'active', title: 'Status' },
         { name: 'description', title: 'Descrição' },
     ]
-    const numberFilterOperations = [
-        'equal',
-        'notEqual',
-        'greaterThan',
-        'greaterThanOrEqual',
-        'lessThan',
-        'lessThanOrEqual',
-    ]
 
     const debouncedSearchTerm = useDebounce(filters, 500)
 
     const getData = async () => {
-        console.log(filters)
         setLoading(true)
         try {
-            // const { columnName, direction } = sorting[0]
-            // const query = `page=${page + 1}&perPage=${perPage}&sorting=${columnName}&direction=${direction}`
-            console.log(filters)
             const { data: { data: result, total } } = await api.post(`/admin/marks/filter`, {...params, filters})
             dispatch({ type: SET_MARK, payload: { data: result, total } })
         } catch ({ response: { data: error } }) {
@@ -68,21 +65,17 @@ const Mark = () => {
         () => {
             // Make sure we have a value (user has entered something in input)
             if (debouncedSearchTerm) {
-                console.log('searching')
-                // dispatch({ type: SET_MARK, payload: { filters } })
                 getData()
-                console.log('end searching')
-            } else {
-                console.log('results []')
             }
+            /* eslint-disable */
         },
 
         [debouncedSearchTerm]
     )
 
     useEffect(() => {
-        
         getData()
+        // eslint-disable-next-line
     }, [params.perPage, params.page, params.sorting])
 
     const changeAddedRows = value => {
@@ -156,6 +149,7 @@ const Mark = () => {
                     onSortingChange={changeState('sorting')}
                 />
                 <Table />
+
                 <TableHeaderRow showSortingControls />
                 <TableEditRow cellComponent={EditCell} />
                 <TableEditColumn
@@ -174,7 +168,14 @@ const Mark = () => {
                 />
                 <CustomPaging totalCount={total} />
 
-                <TableFilterRow showFilterSelector />
+                <TableFilterRow showFilterSelector messages={TableFilterRowMessages} />
+
+                <TableColumnVisibility
+                    hiddenColumnNames={hiddenColumnNames}
+                    onHiddenColumnNamesChange={changeState('hiddenColumnNames')}
+                />
+                <Toolbar />
+                <ColumnChooser />
             </Grid>
         </Paper>
     )

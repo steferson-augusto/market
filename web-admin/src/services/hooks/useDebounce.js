@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 // Our hook
 const useDebounce = (value, delay) => {
@@ -23,6 +23,8 @@ const useDebounce = (value, delay) => {
             return () => {
                 clearTimeout(handler);
             }
+            
+            /* eslint-disable */
         },
         // Only re-call effect if value changes
         // You could also add the "delay" var to inputs array if you ...

@@ -6,30 +6,16 @@ import Input from '@material-ui/core/Input'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import TableCell from '@material-ui/core/TableCell'
-import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 import EditIcon from '@material-ui/icons/Edit'
 import SaveIcon from '@material-ui/icons/Save'
 import CancelIcon from '@material-ui/icons/Cancel'
-
-// const tableMessages = {
-//     noData: 'Keine Daten verfügbar',
-// };
-// const editColumnMessages = {
-//     addCommand: 'Neue Zeile',
-//     editCommand: 'Bearbeiten',
-//     deleteCommand: 'Entfernen',
-//     commitCommand: 'Speichern',
-//     cancelCommand: 'Abbrechen',
-// };
-// const groupingPanelMessages = {
-//     groupByColumn: 'Ziehen Sie eine Spalte hierhin, um danach zu gruppieren',
-// };
-// const filterRowMessages = {
-//     filterPlaceholder: 'Filter...',
-// };
-
+import AddIcon from '@material-ui/icons/Add'
+import CheckIcon from '@material-ui/icons/Check'
+import CloseIcon from '@material-ui/icons/Close'
+import Tooltip from '@material-ui/core/Tooltip'
+import Chip from '@material-ui/core/Chip'
 
 const style = {
     numericInput: {
@@ -41,11 +27,36 @@ const style = {
     }
 }
 
+export const pageSizes = [5, 10, 15, 20, 25]
+
 export const pagingPanelMessages = {
     showAll: 'Tudo',
     rowsPerPage: 'Itens por página',
     info: '{from} - {to} de {count}',
 }
+
+export const TableFilterRowMessages = {
+    filterPlaceholder: 'Filtro...',
+    contains: 'Contém',
+    notContains: 'Não contém',
+    startsWith: 'Inicia com',
+    endsWith: 'Termina com',
+    equal: 'Igual',
+    notEqual: 'Diferente',
+    greaterThan: 'Maior',
+    greaterThanOrEqual: 'Maior ou igual',
+    lessThan: 'Menor',
+    lessThanOrEqual: 'Menor ou igual',
+}
+
+export const numberFilterOperations = [
+    'equal',
+    'notEqual',
+    'greaterThan',
+    'greaterThanOrEqual',
+    'lessThan',
+    'lessThanOrEqual',
+]
 
 const ActiveEditorBase = ({ value="", onValueChange, classes }) => {
     const handleChange = event => {
@@ -67,11 +78,14 @@ const ActiveEditorBase = ({ value="", onValueChange, classes }) => {
 
 const ActiveEditor = withStyles(style)(ActiveEditorBase)
 
-const ActiveFormatter = ({ value }) => (
-    <b style={(value === 1) ? { color: 'green' } : (value === 0) ? { color: 'red' } : { color: 'grey' }}>
-        {(value === 1) ? 'Ativo' : (value === 0) ? 'Inativo' : 'Desconhecido'}
-    </b>
-)
+const ActiveFormatter = ({ value }) => {
+    const label = (value === 1) ? 'Ativo' : (value === 0) ? 'Inativo' : 'Desconhecido'
+    const color = (value === 1) ? 'primary' : 'default'
+    // const icon = (value === 1) ? <CheckIcon /> : <CloseIcon />
+    return (
+        <Chip label={label} color={color} />
+    )
+}
 
 export const ActiveTypeProvider = props => (
     <DataTypeProvider
@@ -84,20 +98,20 @@ export const ActiveTypeProvider = props => (
 
 export const AddButton = ({ onExecute }) => (
     <div style={{ textAlign: 'center' }}>
-        <Button
-            color="primary"
-            onClick={onExecute}
-            title="Create new row"
-        >
-            Add
-      </Button>
+        <Tooltip title='Adicionar'>
+            <IconButton color="primary" onClick={onExecute} >
+                <AddIcon />
+            </IconButton>
+        </Tooltip>
     </div>
 )
 
 export const EditButton = ({ onExecute }) => (
-    <IconButton onClick={onExecute} title="Editar">
-        <EditIcon />
-    </IconButton>
+    <Tooltip title='Editar'>
+        <IconButton onClick={onExecute}>
+            <EditIcon />
+        </IconButton>
+    </Tooltip>
 )
 
 export const DeleteButton = ({ onExecute }) => (
@@ -115,15 +129,19 @@ export const DeleteButton = ({ onExecute }) => (
 )
 
 export const CommitButton = ({ onExecute }) => (
-    <IconButton onClick={onExecute} title="Save changes">
-        <SaveIcon />
-    </IconButton>
+    <Tooltip title='Salvar'>
+        <IconButton color="primary" onClick={onExecute}>
+            <SaveIcon />
+        </IconButton>
+    </Tooltip>
 )
 
 export const CancelButton = ({ onExecute }) => (
-    <IconButton color="secondary" onClick={onExecute} title="Cancel changes">
-        <CancelIcon />
-    </IconButton>
+    <Tooltip title='Cancelar'>
+        <IconButton color="secondary" onClick={onExecute}>
+            <CancelIcon />
+        </IconButton>
+    </Tooltip>
 )
 
 const commandComponents = {
@@ -135,7 +153,7 @@ const commandComponents = {
 }
 
 export const Command = ({ id, onExecute }) => {
-    const CommandButton = commandComponents[id];
+    const CommandButton = commandComponents[id]
     return (
         <CommandButton
             onExecute={onExecute}
@@ -220,7 +238,7 @@ const NumberEditorBase = ({ value, onValueChange, classes }) => {
             value={value === undefined ? '' : value}
             inputProps={{
                 min: 0,
-                placeholder: 'Filter...',
+                placeholder: 'Filtro...',
             }}
             onChange={handleChange}
         />
