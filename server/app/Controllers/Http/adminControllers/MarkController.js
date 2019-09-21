@@ -23,6 +23,7 @@ class MarkController {
 
     async index({ request, response }) {
         try {
+            const a = b
             const { page, perPage, filters, sorting: [{columnName, direction}] } = request.only(['page', 'perPage', 'sorting', 'filters'])
             let query = Mark.query()
             let data = Operations.operation(query, filters)
@@ -63,9 +64,6 @@ class MarkController {
         } catch {
             return response.status(500).send({ error: MessageError.requestFail })
         }
-    }
-
-    async destroy({ params, request }) {
     }
 }
 
