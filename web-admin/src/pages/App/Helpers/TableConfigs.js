@@ -12,8 +12,6 @@ import EditIcon from '@material-ui/icons/Edit'
 import SaveIcon from '@material-ui/icons/Save'
 import CancelIcon from '@material-ui/icons/Cancel'
 import AddIcon from '@material-ui/icons/Add'
-import CheckIcon from '@material-ui/icons/Check'
-import CloseIcon from '@material-ui/icons/Close'
 import Tooltip from '@material-ui/core/Tooltip'
 import Chip from '@material-ui/core/Chip'
 
@@ -219,7 +217,7 @@ export const EditCell = props => {
     return <TableEditRow.Cell {...props} />
 }
 
-const NumberEditorBase = ({ value, onValueChange, classes }) => {
+const NumberEditorBase = ({ value, onValueChange, classes, disabled }) => {
     const handleChange = (event) => {
         const { value: targetValue } = event.target
         if (targetValue.trim() === '') {
@@ -230,7 +228,7 @@ const NumberEditorBase = ({ value, onValueChange, classes }) => {
     }
     return (
         <Input
-            type="number"
+            type="number" disabled={disabled}
             classes={{
                 input: classes.numericInput,
             }}
