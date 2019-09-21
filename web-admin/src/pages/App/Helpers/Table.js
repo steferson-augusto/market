@@ -22,11 +22,13 @@ import {
 } from '@devexpress/dx-react-grid-material-ui'
 import Paper from '@material-ui/core/Paper'
 import LinearProgress from '@material-ui/core/LinearProgress'
+import Snackbar from '@material-ui/core/Snackbar'
 
 import api from '../../../services/api'
 import useDebounce from '../../../services/hooks/useDebounce'
 import { SET_MARK } from '../../../store/actionTypes'
-import { 
+import CustomSnackbar, { convertError } from '../Helpers/Snackbar'
+import {
     pagingPanelMessages,
     ActiveTypeProvider,
     Command, EditCell,
@@ -34,6 +36,7 @@ import {
     pageSizes,
     TableFilterRowMessages,
     numberFilterOperations,
+    ToolbarFilter,
 } from './TableConfigs'
 
 const TableComponent = props => {
@@ -41,7 +44,15 @@ const TableComponent = props => {
     const dispatch = useDispatch()
     const { data, total, editingRowIds, addedRows, rowChanges, filters, hiddenColumnNames, ...params } = useSelector(state => state[model])
     const [loading, setLoading] = useState(true)
-
+    const [filter, setFilter] = useState(false)
+    const [snack, setSnack] = useState({
+        open: false,
+        variant: 'success',
+        message: 'Carregado com sucesso'
+    })
+    const columnChooser = { showColumnChooser: 'Exibir/ocultar colunas' }
+    const sortingHint = { sortingHint: 'Ordenar' }
+    const noData = { noData: 'Sem registros' }
     const types = {
         'marks': SET_MARK
     }
@@ -52,10 +63,10 @@ const TableComponent = props => {
     const getData = async () => {
         setLoading(true)
         try {
-            const { data: { data: result, total } } = await api.post(`/admin/${model}/filter`, {...params, filters})
+            const { data: { data: result, total } } = await api.post(`/admin/${model}/filter`, { ...params, filters })
             dispatch({ type: typeAction, payload: { data: result, total } })
-        } catch ({ response: { data: error } }) {
-            console.log(error)
+        } catch ({ response: { status, data: { error } } }) {
+            setSnack(convertError(status, error))
         }
         setLoading(false)
     }
@@ -84,8 +95,8 @@ const TableComponent = props => {
             try {
                 const { data: { data: result } } = await api.post(`/admin/${model}`, added[0])
                 dispatch({ type: typeAction, payload: { data: [result, ...data] } })
-            } catch ({ response: { data: error } }) {
-                console.log('ERRO: ', error)
+            } catch ({ response: { status, data: { error } } }) {
+                setSnack(convertError(status, error))
             }
             setLoading(false)
         }
@@ -99,8 +110,9 @@ const TableComponent = props => {
                     const rows = [...data]
                     rows[index] = { ...rows[index], ...changed[index] }
                     dispatch({ type: typeAction, payload: { data: rows } })
-                } catch ({ response: { data: error } }) {
-                    console.log('ERRO: ', error)
+                    setSnack({ open: true, variant: 'success', message: 'Alterado com sucesso' })
+                } catch ({ response: { status, data: { error } } }) {
+                    setSnack(convertError(status, error))
                 }
                 setLoading(false)
             }
@@ -108,6 +120,11 @@ const TableComponent = props => {
     }
 
     const changeState = field => value => dispatch({ type: typeAction, payload: { [field]: value } })
+
+    const handleCloseSnack = reason => {
+        if (reason === 'clickaway') return
+        setSnack({ ...snack, open: false})
+    }
 
     return (
         <Paper style={{ position: 'relative' }}>
@@ -143,9 +160,9 @@ const TableComponent = props => {
                     sorting={params.sorting}
                     onSortingChange={changeState('sorting')}
                 />
-                <Table />
+                <Table messages={noData} />
 
-                <TableHeaderRow showSortingControls />
+                <TableHeaderRow showSortingControls messages={sortingHint} />
                 <TableEditRow cellComponent={EditCell} />
                 <TableEditColumn
                     width={170}
@@ -163,16 +180,33 @@ const TableComponent = props => {
                 />
                 <CustomPaging totalCount={total} />
 
-                {1 == 2 && <TableFilterRow showFilterSelector messages={TableFilterRowMessages} />}
-                
+                {filter && <TableFilterRow showFilterSelector messages={TableFilterRowMessages} />}
+
 
                 <TableColumnVisibility
                     hiddenColumnNames={hiddenColumnNames}
                     onHiddenColumnNamesChange={changeState('hiddenColumnNames')}
                 />
                 <Toolbar />
-                <ColumnChooser />
+                <ToolbarFilter activated={filter} toggleFilter={() => setFilter(!filter)} />
+                <ColumnChooser messages={columnChooser} />
             </Grid>
+
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                open={snack.open}
+                autoHideDuration={3000}
+                onClose={handleCloseSnack}
+            >
+                <CustomSnackbar
+                    onClose={handleCloseSnack}
+                    variant={snack.variant}
+                    message={snack.message}
+                />
+            </Snackbar>
         </Paper>
     )
 }

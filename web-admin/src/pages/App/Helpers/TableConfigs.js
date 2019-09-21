@@ -1,4 +1,5 @@
 import React from 'react'
+import { Template, TemplatePlaceholder, Plugin } from '@devexpress/dx-react-core'
 import { DataTypeProvider } from '@devexpress/dx-react-grid'
 import { TableEditRow } from '@devexpress/dx-react-grid-material-ui'
 import { withStyles } from '@material-ui/core/styles'
@@ -12,6 +13,7 @@ import EditIcon from '@material-ui/icons/Edit'
 import SaveIcon from '@material-ui/icons/Save'
 import CancelIcon from '@material-ui/icons/Cancel'
 import AddIcon from '@material-ui/icons/Add'
+import FilterListIcon from '@material-ui/icons/FilterList';
 import Tooltip from '@material-ui/core/Tooltip'
 import Chip from '@material-ui/core/Chip'
 
@@ -56,7 +58,7 @@ export const numberFilterOperations = [
     'lessThanOrEqual',
 ]
 
-const ActiveEditorBase = ({ value="", onValueChange, classes }) => {
+const ActiveEditorBase = ({ value = "", onValueChange, classes }) => {
     const handleChange = event => {
         const { value: targetValue } = event.target
         onValueChange(targetValue)
@@ -244,3 +246,22 @@ const NumberEditorBase = ({ value, onValueChange, classes, disabled }) => {
 }
 
 export const NumberEditor = withStyles(style)(NumberEditorBase)
+
+export const ToolbarFilter = ({ toggleFilter, activated }) => {
+    const title = activated ? 'Ocultar filtros' : 'Exibir filtros'
+    return (
+        <Plugin
+            name="ToolbarFilter"
+            dependencies={[{ name: 'Toolbar' }]}
+        >
+            <Template name="toolbarContent" >
+                <TemplatePlaceholder />
+                <Tooltip title={title} placement='bottom'>
+                    <IconButton onClick={toggleFilter}>
+                        <FilterListIcon />
+                    </IconButton>
+                </Tooltip>
+            </Template>
+        </Plugin>
+    )
+}
