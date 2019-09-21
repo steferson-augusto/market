@@ -23,7 +23,6 @@ class MarkController {
 
     async index({ request, response }) {
         try {
-            const a = b
             const { page, perPage, filters, sorting: [{columnName, direction}] } = request.only(['page', 'perPage', 'sorting', 'filters'])
             let query = Mark.query()
             let data = Operations.operation(query, filters)
