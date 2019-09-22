@@ -52,8 +52,8 @@ Route.put('/admin/ums/:id', 'adminControllers/UmController.update').middleware([
 //========================= Admin - Products =========================
 // Route.get('/admin/ums', 'adminControllers/UmController.list').middleware(['auth', 'admin'])
 Route.post('/admin/products/filter', 'adminControllers/ProductController.index').middleware(['auth', 'admin'])
-// Route.post('/admin/ums', 'adminControllers/UmController.store').middleware(['auth', 'admin'])
-// Route.put('/admin/ums/:id', 'adminControllers/UmController.update').middleware(['auth', 'admin'])
+Route.post('/admin/products', 'adminControllers/ProductController.store').middleware(['auth', 'admin'])
+Route.put('/admin/products/:id', 'adminControllers/ProductController.update').middleware(['auth', 'admin'])
 
 //==================== View - Confirmação de email ====================
 Route.get('register/confirm', ({ view }) => {
