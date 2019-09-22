@@ -7,8 +7,8 @@ class UmSchema extends Schema {
   up () {
     this.create('ums', (table) => {
       table.increments()
-      table.string('name', 40).notNullable()
-      table.string('abbreviation', 15).notNullable()
+      table.string('name', 40).notNullable().unique()
+      table.string('abbreviation', 15).notNullable().unique()
       table.text('description').nullable()
       table.boolean('active').defaultTo(1).notNullable()
       table.timestamps()

@@ -5,88 +5,88 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 /**
- * Resourceful controller for interacting with sections
+ * Resourceful controller for interacting with products
  */
 class SectionController {
   /**
-   * Show a list of all sections.
-   * GET sections
+     * Show a list of all products.
+     * GET products
+     *
+     * @param {object} ctx
+     * @param {Request} ctx.request
+     * @param {Response} ctx.response
+     * @param {View} ctx.view
+     */
+  async index({ request, response, view }) {
+  }
+
+  /**
+   * Render a form to be used for creating a new product.
+   * GET products/create
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
+  async create({ request, response, view }) {
   }
 
   /**
-   * Render a form to be used for creating a new section.
-   * GET sections/create
+   * Create/save a new product.
+   * POST products
+   *
+   * @param {object} ctx
+   * @param {Request} ctx.request
+   * @param {Response} ctx.response
+   */
+  async store({ request, response }) {
+  }
+
+  /**
+   * Display a single product.
+   * GET products/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ request, response, view }) {
+  async show({ params, request, response, view }) {
   }
 
   /**
-   * Create/save a new section.
-   * POST sections
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
-  }
-
-  /**
-   * Display a single section.
-   * GET sections/:id
+   * Render a form to update an existing product.
+   * GET products/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async edit({ params, request, response, view }) {
   }
 
   /**
-   * Render a form to update an existing section.
-   * GET sections/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
-   * Update section details.
-   * PUT or PATCH sections/:id
+   * Update product details.
+   * PUT or PATCH products/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update({ params, request, response }) {
   }
 
   /**
-   * Delete a section with id.
-   * DELETE sections/:id
+   * Delete a product with id.
+   * DELETE products/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy({ params, request, response }) {
   }
 }
 

@@ -7,7 +7,7 @@ class SectionSchema extends Schema {
   up () {
     this.create('sections', (table) => {
       table.increments()
-      table.string('name', 40).notNullable()
+      table.string('name', 40).notNullable().unique()
       table.text('description').nullable()
       table.boolean('active').defaultTo(1).notNullable()
       table.timestamps()
