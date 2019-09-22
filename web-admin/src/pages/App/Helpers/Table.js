@@ -26,7 +26,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 
 import api from '../../../services/api'
 import useDebounce from '../../../services/hooks/useDebounce'
-import { SET_MARK, SET_SECTION, SET_UM } from '../../../store/actionTypes'
+import { SET_MARK, SET_SECTION, SET_UM, SET_PRODUCTS } from '../../../store/actionTypes'
 import CustomSnackbar, { convertError } from '../Helpers/Snackbar'
 import {
     pagingPanelMessages,
@@ -57,6 +57,7 @@ const TableComponent = props => {
         'marks': SET_MARK,
         'sections': SET_SECTION,
         'ums': SET_UM,
+        'products': SET_PRODUCTS,
     }
     const typeAction = types[model]
 
@@ -145,7 +146,7 @@ const TableComponent = props => {
                 />
                 <ActiveTypeProvider for={["active"]} />
                 <DataTypeProvider
-                    for={['id']}
+                    for={['id', 'price']}
                     availableFilterOperations={numberFilterOperations}
                     editorComponent={NumberEditor}
                 />

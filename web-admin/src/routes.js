@@ -8,6 +8,7 @@ import App from "./pages/App/index"
 import Mark from './pages/App/Mark'
 import Section from './pages/App/Section'
 import UM from './pages/App/Um'
+import Product from './pages/App/Product'
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -42,6 +43,11 @@ export const routes = [
     path: "/ums",
     exact: true,
     component: UM
+  },
+  {
+    path: "/products",
+    exact: true,
+    component: Product
   }
 ]
 

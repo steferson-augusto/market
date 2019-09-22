@@ -70,8 +70,11 @@ const MySnackbarContentWrapper = props => {
 
 export const convertError = (status, error) => {
     const variant = status == 400 ? 'warning' : 'error'
-    let [{ field, message }] = error
-    message = `${field.toUpperCase()}: ${message}`
+    let message = 'GENERAL: Falha na requisição'
+    if (Array.isArray(error)) {
+        let [{ field, message: msg }] = error
+        message = `${field.toUpperCase()}: ${msg}`
+    }
 
     return { variant, message, open: true }
 }

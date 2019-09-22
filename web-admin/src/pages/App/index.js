@@ -21,6 +21,7 @@ import MailIcon from '@material-ui/icons/Mail'
 import TurnedInIcon from '@material-ui/icons/TurnedIn'
 import CategoryIcon from '@material-ui/icons/Category'
 import EmojiSymbolsIcon from '@material-ui/icons/EmojiSymbols'
+import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket';
 
 import { routes } from "../../routes"
 
@@ -89,6 +90,11 @@ const useStyles = makeStyles(theme => ({
 
 const menuList = [
     {
+        label: 'Produtos',
+        icon: <ShoppingBasketIcon />,
+        to: '/products' ,
+    },
+    {
         label: 'Marcas',
         icon: <TurnedInIcon />,
         to: '/marks' ,
@@ -110,6 +116,7 @@ const paths = {
     "/marks": 'MARCAS',
     '/sections': 'SEÇÕES',
     '/ums': 'UNIDADES DE MEDIDA',
+    '/products': 'PRODUTOS',
 }
 
 const App = props => {
