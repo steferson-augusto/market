@@ -37,6 +37,7 @@ import {
     TableFilterRowMessages,
     numberFilterOperations,
     ToolbarFilter,
+    CurrencyTypeProvider,
 } from './TableConfigs'
 
 const TableComponent = props => {
@@ -146,10 +147,11 @@ const TableComponent = props => {
                 />
                 <ActiveTypeProvider for={["active"]} />
                 <DataTypeProvider
-                    for={['id', 'price']}
+                    for={['id']}
                     availableFilterOperations={numberFilterOperations}
                     editorComponent={NumberEditor}
                 />
+                <CurrencyTypeProvider for={['price']} />
 
                 <EditingState
                     editingRowIds={editingRowIds}

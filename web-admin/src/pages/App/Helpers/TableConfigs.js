@@ -2,8 +2,11 @@ import React from 'react'
 import { Template, TemplatePlaceholder, Plugin } from '@devexpress/dx-react-core'
 import { DataTypeProvider } from '@devexpress/dx-react-grid'
 import { TableEditRow } from '@devexpress/dx-react-grid-material-ui'
+import NumberFormat from 'react-number-format'
 import { withStyles } from '@material-ui/core/styles'
 import Input from '@material-ui/core/Input'
+import TextField from '@material-ui/core/TextField'
+import InputAdornment from '@material-ui/core/InputAdornment'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import TableCell from '@material-ui/core/TableCell'
@@ -16,6 +19,7 @@ import AddIcon from '@material-ui/icons/Add'
 import FilterListIcon from '@material-ui/icons/FilterList';
 import Tooltip from '@material-ui/core/Tooltip'
 import Chip from '@material-ui/core/Chip'
+
 
 const style = {
     numericInput: {
@@ -229,17 +233,11 @@ const NumberEditorBase = ({ value, onValueChange, classes, disabled }) => {
         onValueChange(parseInt(targetValue, 10))
     }
     return (
-        <Input
+        <Input fullWidth
             type="number" disabled={disabled}
-            classes={{
-                input: classes.numericInput,
-            }}
-            fullWidth
+            classes={{ input: classes.numericInput, }}
             value={value === undefined ? '' : value}
-            inputProps={{
-                min: 0,
-                placeholder: 'Filtro...',
-            }}
+            inputProps={{ min: 1 }}
             onChange={handleChange}
         />
     )
@@ -265,3 +263,43 @@ export const ToolbarFilter = ({ toggleFilter, activated }) => {
         </Plugin>
     )
 }
+
+const CurrencyFormatCustom = props => {
+    const { inputRef, onChange, ...other } = props
+
+    return (
+        <NumberFormat
+            {...other} 
+            getInputRef={inputRef} allowNegative={false}
+            onValueChange={value => onChange({ target: { value: value.value } }) }
+            decimalScale={2} fixedDecimalScale={true}
+        />
+    )
+}
+
+const CurrencyEditor = ({ value, onValueChange, disabled }) => {
+    const handleChange = event => onValueChange(event.target.value)
+
+    return (
+        <TextField
+            value={value} disabled={disabled}
+            onChange={event => handleChange(event)}
+            id="formatted-numberformat-input"
+            InputProps={{
+                inputComponent: CurrencyFormatCustom,
+                startAdornment: <InputAdornment position="start">R$</InputAdornment>,
+            }}
+        />
+    )
+}
+
+const CurrencyFormatter = ({ value }) => value ? `R$ ${value}` : ''
+
+export const CurrencyTypeProvider = props => (
+    <DataTypeProvider
+        availableFilterOperations={numberFilterOperations}
+        editorComponent={CurrencyEditor}
+        formatterComponent={CurrencyFormatter}
+        {...props}
+    />
+)
