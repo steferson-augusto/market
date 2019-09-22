@@ -26,7 +26,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 
 import api from '../../../services/api'
 import useDebounce from '../../../services/hooks/useDebounce'
-import { SET_MARK } from '../../../store/actionTypes'
+import { SET_MARK, SET_SECTION, SET_UM } from '../../../store/actionTypes'
 import CustomSnackbar, { convertError } from '../Helpers/Snackbar'
 import {
     pagingPanelMessages,
@@ -54,7 +54,9 @@ const TableComponent = props => {
     const sortingHint = { sortingHint: 'Ordenar' }
     const noData = { noData: 'Sem registros' }
     const types = {
-        'marks': SET_MARK
+        'marks': SET_MARK,
+        'sections': SET_SECTION,
+        'ums': SET_UM,
     }
     const typeAction = types[model]
 
@@ -94,7 +96,9 @@ const TableComponent = props => {
             setLoading(true)
             try {
                 const { data: { data: result } } = await api.post(`/admin/${model}`, added[0])
+                console.log(added[0])
                 dispatch({ type: typeAction, payload: { data: [result, ...data] } })
+                setSnack({ open: true, variant: 'success', message: 'Adicionado com sucesso' })
             } catch ({ response: { status, data: { error } } }) {
                 setSnack(convertError(status, error))
             }

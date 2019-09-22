@@ -1,9 +1,19 @@
 import React from "react"
+import Table from './Helpers/Table'
 
 const Um = () => {
-    return (
-        <p>UM</p>
-    )
+    const columns = [
+        { name: 'id', title: 'ID' },
+        { name: 'name', title: 'Unidade' },
+        { name: 'abbreviation', title: 'Abreviação' },
+        { name: 'active', title: 'Status' },
+        { name: 'description', title: 'Descrição' },
+    ]
+    const editingExtensions = [
+        { columnName: 'id', editingEnabled: false },
+    ]
+
+    return <Table columns={columns} model={'ums'} editingExtensions={editingExtensions} />
 }
 
 export default Um

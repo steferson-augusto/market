@@ -20,6 +20,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox'
 import MailIcon from '@material-ui/icons/Mail'
 import TurnedInIcon from '@material-ui/icons/TurnedIn'
 import CategoryIcon from '@material-ui/icons/Category'
+import EmojiSymbolsIcon from '@material-ui/icons/EmojiSymbols'
 
 import { routes } from "../../routes"
 
@@ -93,16 +94,22 @@ const menuList = [
         to: '/marks' ,
     },
     {
-        label: 'Sessões',
+        label: 'Seções',
         icon: <CategoryIcon />,
         to: '/sections' ,
+    },
+    {
+        label: 'Unidades de Medida',
+        icon: <EmojiSymbolsIcon />,
+        to: '/ums' ,
     },
 ]
 
 const paths = {
     "/": "MARCAS",
     "/marks": 'MARCAS',
-    '/sections': 'SESSÕES'
+    '/sections': 'SEÇÕES',
+    '/ums': 'UNIDADES DE MEDIDA',
 }
 
 const App = props => {
