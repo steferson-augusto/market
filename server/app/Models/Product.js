@@ -4,6 +4,9 @@
 const Model = use('Model')
 
 class Product extends Model {
+    mark() {
+        return this.belongsTo('App/Models/Mark')
+    }
 }
 
 module.exports = Product

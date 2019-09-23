@@ -26,6 +26,11 @@ const messages = {
     above: 'Deve ser maior que 0'
 }
 
+const columns = [
+    'products.id', 'products.name', 'products.active', 'products.price', 'products.description', 
+    'products.mark_id', 'products.um_id', 'products.section_id', 'marks.name as mark',
+]
+
 class ProductController {
 
     async index({ request, response }) {
@@ -33,7 +38,9 @@ class ProductController {
             const { page, perPage, filters, sorting: [{ columnName, direction }] } = request.only(['page', 'perPage', 'sorting', 'filters'])
             let query = Product.query()
             let data = Operations.operation(query, filters)
-            data = await data.orderBy(columnName, direction)
+            data = await data.leftJoin('marks', 'products.mark_id', 'marks.id')
+                .select(...columns)
+                .orderBy(`products.${columnName}`, direction)
                 .paginate(page + 1, perPage)
 
             return response.status(200).send(data)

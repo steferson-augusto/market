@@ -26,7 +26,7 @@ class MarkController {
 
     async list({ response }) {
         try {
-            const data = await Mark.all()
+            const data = await Mark.query().orderBy('name', 'asc').fetch()
             return response.status(200).send(data)
         } catch (error) {
             return response.status(500).send({ error: MessageError.requestFail })
