@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState ,useEffect } from 'react'
 import { Template, TemplatePlaceholder, Plugin } from '@devexpress/dx-react-core'
 import { DataTypeProvider } from '@devexpress/dx-react-grid'
 import { TableEditRow } from '@devexpress/dx-react-grid-material-ui'
@@ -20,6 +20,7 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import Tooltip from '@material-ui/core/Tooltip'
 import Chip from '@material-ui/core/Chip'
 
+import api from '../../../services/api'
 
 const style = {
     numericInput: {
@@ -303,3 +304,48 @@ export const CurrencyTypeProvider = props => (
         {...props}
     />
 )
+
+const SelectEditorBase = ({ value = 1, onValueChange, classes, column: { name } }) => {
+    const [data, setData] = useState([{ value: 1, title: '' }])
+    useEffect(() => {
+        const [model] = name.split('_')
+        console.log(model, name)
+        const getData = async() => {
+            let { data: result } = await api.get(`/admin/${model}s`)
+            result = result.map( ({ id, name }) => ({ value: id, title: name }))
+            setData(result)
+        }
+        getData()
+    }, [])
+    const handleChange = event => {
+        const { value: targetValue } = event.target
+        onValueChange(targetValue)
+    }
+    return (
+        <Select
+            className={classes.select}
+            value={value}
+            onChange={handleChange}
+        >
+            {data.map(d => <MenuItem key={`${d.value}`} value={d.value}>{d.title}</MenuItem>)}
+        </Select>
+    )
+}
+
+const SelectEditor = withStyles(style)(SelectEditorBase)
+
+const SelectFormatter = ({ value }, ...rest) => {
+    console.log(value)
+    return value
+}
+
+export const SelectTypeProvider = props => {
+    console.log(props)
+    return (
+        <DataTypeProvider
+            availableFilterOperations={['equal', 'notEqual']}
+            editorComponent={SelectEditor}
+            formatterComponent={SelectFormatter}
+            {...props}
+        />
+    )}

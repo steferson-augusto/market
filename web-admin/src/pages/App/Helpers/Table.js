@@ -38,6 +38,7 @@ import {
     numberFilterOperations,
     ToolbarFilter,
     CurrencyTypeProvider,
+    SelectTypeProvider,
 } from './TableConfigs'
 
 const TableComponent = props => {
@@ -146,6 +147,7 @@ const TableComponent = props => {
                     onPageSizeChange={changeState('perPage')}
                 />
                 <ActiveTypeProvider for={["active"]} />
+                <SelectTypeProvider for={["mark"]} />
                 <DataTypeProvider
                     for={['id']}
                     availableFilterOperations={numberFilterOperations}

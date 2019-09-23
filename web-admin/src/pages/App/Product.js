@@ -5,6 +5,7 @@ const Product = () => {
     const columns = [
         { name: 'id', title: 'ID' },
         { name: 'name', title: 'Produto' },
+        { name: 'mark', title: 'Marca' },
         { name: 'price', title: 'Preço' },
         { name: 'active', title: 'Status' },
         { name: 'description', title: 'Descrição' },
