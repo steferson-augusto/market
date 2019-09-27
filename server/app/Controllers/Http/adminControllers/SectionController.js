@@ -21,16 +21,9 @@ const messages = {
   'description.max': 'A quantidade máxima de 200 caracteres foi excedida',
 }
 
-class SectionController {
+const requestFields = ['name', 'active', 'description']
 
-  async list({ response }) {
-    try {
-      const data = await Section.all()
-      return response.status(200).send(data)
-    } catch (error) {
-      return response.status(500).send({ error: MessageError.requestFail })
-    }
-  }
+class SectionController {
 
   async index({ request, response }) {
     try {
@@ -48,7 +41,7 @@ class SectionController {
 
   async store({ request, response }) {
     try {
-      const data = request.only(['name', 'active', 'description'])
+      const data = request.only(requestFields)
       const validation = await validateAll(data, rules, messages)
       if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
@@ -64,7 +57,7 @@ class SectionController {
       const section = await Section.find(params.id)
       if (!section) return response.status(404).send({ error: MessageError.notFound })
 
-      const data = request.only(['name', 'active', 'description'])
+      const data = request.only(requestFields)
       section.merge(data)
       const validation = await validateAll({ ...section.$attributes }, rulesUpdate, messages)
       if (validation.fails()) return response.status(400).send({ error: validation.messages() })

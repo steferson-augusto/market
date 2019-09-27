@@ -22,16 +22,9 @@ const messages = {
     'description.max': 'A quantidade máxima de 200 caracteres foi excedida',
 }
 
-class MarkController {
+const requestFields = ['name', 'active', 'description']
 
-    async list({ response }) {
-        try {
-            const data = await Mark.query().orderBy('name', 'asc').fetch()
-            return response.status(200).send(data)
-        } catch (error) {
-            return response.status(500).send({ error: MessageError.requestFail })
-        }
-    }
+class MarkController {
 
     async index({ request, response }) {
         try {
@@ -49,7 +42,7 @@ class MarkController {
 
     async store({ request, response }) {
         try {
-            const data = request.only(['name', 'active', 'description'])
+            const data = request.only(requestFields)
             const validation = await validateAll(data, rules, messages)
             if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
@@ -65,7 +58,7 @@ class MarkController {
             const mark = await Mark.find(params.id)
             if (!mark) return response.status(404).send({ error: MessageError.notFound })
 
-            const data = request.only(['name', 'active', 'description'])
+            const data = request.only(requestFields)
             mark.merge(data)
             const validation = await validateAll({ ...mark.$attributes }, rulesUpdate, messages)
             if (validation.fails()) return response.status(400).send({ error: validation.messages() })

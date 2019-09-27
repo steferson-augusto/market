@@ -2,6 +2,9 @@
 
 const { validateAll } = use('Validator')
 const Product = use("App/Models/Product")
+const Mark = use("App/Models/Mark")
+const Section = use("App/Models/Section")
+const Um = use("App/Models/Um")
 const MessageError = use('./../Helpers/MessageError')
 const Operations = use('./../Helpers/Operations')
 
@@ -28,8 +31,10 @@ const messages = {
 
 const columns = [
     'products.id', 'products.name', 'products.active', 'products.price', 'products.description', 
-    'products.mark_id', 'products.um_id', 'products.section_id', 'marks.name as mark',
+    'products.mark_id', 'products.um_id', 'products.section_id',
 ]
+
+const requestFields = ['name', 'price', 'active', 'description', 'mark_id', 'section_id', 'um_id']
 
 class ProductController {
 
@@ -38,12 +43,15 @@ class ProductController {
             const { page, perPage, filters, sorting: [{ columnName, direction }] } = request.only(['page', 'perPage', 'sorting', 'filters'])
             let query = Product.query()
             let data = Operations.operation(query, filters)
-            data = await data.leftJoin('marks', 'products.mark_id', 'marks.id')
+            data = await data
                 .select(...columns)
                 .orderBy(`products.${columnName}`, direction)
                 .paginate(page + 1, perPage)
 
-            return response.status(200).send(data)
+            const marks = await Mark.query().orderBy('name', 'asc').fetch()
+            const sections = await Section.query().orderBy('name', 'asc').fetch()
+            const ums = await Um.query().orderBy('name', 'asc').fetch()
+            return response.status(200).send({ data, marks, sections, ums })
         } catch {
             return response.status(500).send({ error: MessageError.requestFail })
         }
@@ -51,7 +59,7 @@ class ProductController {
 
     async store({ request, response }) {
         try {
-            const data = request.only(['name', 'price', 'active', 'description'])
+            const data = request.only(requestFields)
             const validation = await validateAll(data, rules, messages)
             if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
@@ -67,7 +75,7 @@ class ProductController {
             const product = await Product.find(params.id)
             if (!product) return response.status(404).send({ error: MessageError.notFound })
 
-            const data = request.only(['name', 'price', 'active', 'description'])
+            const data = request.only(requestFields)
             product.merge(data)
             const validation = await validateAll({ ...product.$attributes }, rules, messages)
             if (validation.fails()) return response.status(400).send({ error: validation.messages() })

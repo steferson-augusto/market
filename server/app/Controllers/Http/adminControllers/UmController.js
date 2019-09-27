@@ -29,16 +29,9 @@ const messages = {
     'abbreviation.max': 'Deve conter 2 caracteres',
 }
 
-class UmController {
+const requestFields = ['name', 'abbreviation', 'active', 'description']
 
-    async list({ response }) {
-        try {
-            const data = await Um.all()
-            return response.status(200).send(data)
-        } catch (error) {
-            return response.status(500).send({ error: MessageError.requestFail })
-        }
-    }
+class UmController {
 
     async index({ request, response }) {
         try {
@@ -56,7 +49,7 @@ class UmController {
 
     async store({ request, response }) {
         try {
-            const data = request.only(['name', 'abbreviation', 'active', 'description'])
+            const data = request.only(requestFields)
             const validation = await validateAll(data, rules, messages)
             if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
@@ -72,7 +65,7 @@ class UmController {
             const um = await Um.find(params.id)
             if (!um) return response.status(404).send({ error: MessageError.notFound })
 
-            const data = request.only(['name', 'abbreviation', 'active', 'description'])
+            const data = request.only(requestFields)
             um.merge(data)
             const validation = await validateAll({ ...um.$attributes }, rulesUpdate, messages)
             if (validation.fails()) return response.status(400).send({ error: validation.messages() })
