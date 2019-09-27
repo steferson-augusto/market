@@ -1,4 +1,4 @@
-import React, { useState ,useEffect } from 'react'
+import React from 'react'
 import { Template, TemplatePlaceholder, Plugin } from '@devexpress/dx-react-core'
 import { DataTypeProvider } from '@devexpress/dx-react-grid'
 import { TableEditRow } from '@devexpress/dx-react-grid-material-ui'
@@ -20,8 +20,6 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import Tooltip from '@material-ui/core/Tooltip'
 import Chip from '@material-ui/core/Chip'
 
-import api from '../../../services/api'
-
 const style = {
     numericInput: {
         textAlign: 'right',
@@ -32,14 +30,15 @@ const style = {
     }
 }
 
+export const columnChooser = { showColumnChooser: 'Exibir/ocultar colunas' }
+export const sortingHint = { sortingHint: 'Ordenar' }
+export const noData = { noData: 'Sem registros' }
 export const pageSizes = [5, 10, 15, 20, 25]
-
 export const pagingPanelMessages = {
     showAll: 'Tudo',
     rowsPerPage: 'Itens por página',
     info: '{from} - {to} de {count}',
 }
-
 export const TableFilterRowMessages = {
     filterPlaceholder: 'Filtro...',
     contains: 'Contém',
@@ -305,47 +304,38 @@ export const CurrencyTypeProvider = props => (
     />
 )
 
-const SelectEditorBase = ({ value = 1, onValueChange, classes, column: { name } }) => {
-    const [data, setData] = useState([{ value: 1, title: '' }])
-    useEffect(() => {
-        const [model] = name.split('_')
-        console.log(model, name)
-        const getData = async() => {
-            let { data: result } = await api.get(`/admin/${model}s`)
-            result = result.map( ({ id, name }) => ({ value: id, title: name }))
-            setData(result)
-        }
-        getData()
-    }, [])
+const SelectEditorBase = ({ value = 1, onValueChange, classes, data: values }) => {
     const handleChange = event => {
         const { value: targetValue } = event.target
         onValueChange(targetValue)
     }
+    const data = [{id: '', text: ''}, ...values]
     return (
         <Select
             className={classes.select}
             value={value}
             onChange={handleChange}
         >
-            {data.map(d => <MenuItem key={`${d.value}`} value={d.value}>{d.title}</MenuItem>)}
+            {data.map(d => <MenuItem key={`${d.id}`} value={d.id}>{d.name}</MenuItem>)}
         </Select>
     )
 }
 
 const SelectEditor = withStyles(style)(SelectEditorBase)
 
-const SelectFormatter = ({ value }, ...rest) => {
-    console.log(value)
-    return value
+const SelectFormatter = ({ value, data }) => {
+    const item = data.find(d => d.id == value)
+    return item ? item.name : ''
 }
 
-export const SelectTypeProvider = props => {
-    console.log(props)
-    return (
-        <DataTypeProvider
-            availableFilterOperations={['equal', 'notEqual']}
-            editorComponent={SelectEditor}
-            formatterComponent={SelectFormatter}
-            {...props}
-        />
-    )}
+const selectEditorBridge = props => <SelectEditor {...props} />
+const selectFormatterBridge = props => SelectFormatter(props)
+
+export const SelectTypeProvider = props => (
+    <DataTypeProvider
+        availableFilterOperations={['equal', 'notEqual']}
+        editorComponent={e => selectEditorBridge({...props, ...e})}
+        formatterComponent={e => selectFormatterBridge({...e, ...props})}
+        {...props}
+    />
+)

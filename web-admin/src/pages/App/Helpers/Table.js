@@ -26,7 +26,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 
 import api from '../../../services/api'
 import useDebounce from '../../../services/hooks/useDebounce'
-import { SET_MARK, SET_SECTION, SET_UM, SET_PRODUCTS } from '../../../store/actionTypes'
+import { SET_MARK, SET_SECTION, SET_UM } from '../../../store/actionTypes'
 import CustomSnackbar, { convertError } from '../Helpers/Snackbar'
 import {
     pagingPanelMessages,
@@ -37,8 +37,6 @@ import {
     TableFilterRowMessages,
     numberFilterOperations,
     ToolbarFilter,
-    CurrencyTypeProvider,
-    SelectTypeProvider,
 } from './TableConfigs'
 
 const TableComponent = props => {
@@ -59,7 +57,6 @@ const TableComponent = props => {
         'marks': SET_MARK,
         'sections': SET_SECTION,
         'ums': SET_UM,
-        'products': SET_PRODUCTS,
     }
     const typeAction = types[model]
 
@@ -68,8 +65,9 @@ const TableComponent = props => {
     const getData = async () => {
         setLoading(true)
         try {
-            const { data: { data: result, total } } = await api.post(`/admin/${model}/filter`, { ...params, filters })
-            dispatch({ type: typeAction, payload: { data: result, total } })
+            const { data: { data, total } } = await api.post(`/admin/${model}/filter`, { ...params, filters })
+            
+            dispatch({ type: typeAction, payload: { data, total } })
         } catch ({ response: { status, data: { error } } }) {
             setSnack(convertError(status, error))
         }
@@ -147,13 +145,12 @@ const TableComponent = props => {
                     onPageSizeChange={changeState('perPage')}
                 />
                 <ActiveTypeProvider for={["active"]} />
-                <SelectTypeProvider for={["mark"]} />
+                
                 <DataTypeProvider
                     for={['id']}
                     availableFilterOperations={numberFilterOperations}
                     editorComponent={NumberEditor}
                 />
-                <CurrencyTypeProvider for={['price']} />
 
                 <EditingState
                     editingRowIds={editingRowIds}
