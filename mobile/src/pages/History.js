@@ -2,10 +2,10 @@ import React from 'react'
 import { View, Text } from 'react-native'
 import { Button, TouchableRipple } from 'react-native-paper'
 
-const Lists = ({ navigation }) => {
+const History = ({ navigation }) => {
 return (
     <View>
-        <Text>Listas de Compras</Text>
+        <Text>Pedidos</Text>
             <TouchableRipple
                 onPress={() => navigation.navigate('Login')} >
                 <Button icon="camera" mode="contained" >
@@ -16,4 +16,4 @@ return (
     )
 }
 
-export default Lists
+export default History
