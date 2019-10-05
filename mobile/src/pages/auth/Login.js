@@ -27,7 +27,7 @@ export default class Login extends Component {
 
         this.state = {
             lembrarMe: false,
-            email: 'batman@dc.com',
+            email: 'steferson_a@hotmail.com',
             password: '123456',
             error: '',
             loading: false,
@@ -68,14 +68,11 @@ export default class Login extends Component {
         if (accessToken) {
             this.setState({ loading: true })
             try {
-                console.log('tesste00')
                 const { data: { token } } = await api.post(`/auth/${provider}`, { accessToken, provider_id })
                 await AsyncStorage.setItem('@RPG:token', token)
                 this.setState({ loading: false, error: '' })
-                console.log('tesste11')
                 this.props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' }))
             } catch (err) {
-                console.log('tesste22')
                 this.setState({
                     loading: false,
                     error: 'Houve um problema com o login, verifique suas credenciais. T.T'
