@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, Image } from 'react-native'
+import { AsyncStorage, View, StyleSheet, Image } from 'react-native'
 import { Button, TouchableRipple, TextInput, HelperText } from 'react-native-paper'
 import { SwitchActions } from 'react-navigation'
-import AsyncStorage from '@react-native-community/async-storage'
 import { AccessToken, LoginManager } from 'react-native-fbsdk'
 import { GoogleSignin, GoogleSigninButton, statusCodes } from 'react-native-google-signin'
 
@@ -29,7 +28,7 @@ export default class Login extends Component {
         this.state = {
             lembrarMe: false,
             email: 'batman@dc.com',
-            password: '123123',
+            password: '123456',
             error: '',
             loading: false,
         }
