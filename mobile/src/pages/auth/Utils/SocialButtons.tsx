@@ -1,16 +1,20 @@
 import React from 'react'
-import { StyleSheet, View, TouchableNativeFeedback } from 'react-native'
+import { StyleSheet } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
-export const ButtonFacebook = ({ press }) => (
-            <Icon.Button
-                name="facebook"
-                backgroundColor="#3b5998"
-                style={styles.button}
-                onPress={press}
-            >
-                Login com Facebook
-        </Icon.Button>
+interface Props {
+    press: any
+}
+
+export const ButtonFacebook = ({ press }: Props) => (
+    <Icon.Button
+        name="facebook"
+        backgroundColor="#3b5998"
+        style={styles.button}
+        onPress={press}
+    >
+        Login com Facebook
+    </Icon.Button>
 )
 
 const styles = StyleSheet.create({

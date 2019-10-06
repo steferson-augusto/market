@@ -3,7 +3,19 @@ import { View, StyleSheet } from 'react-native'
 import { Button, TouchableRipple } from 'react-native-paper'
 import { Colors } from 'react-native-paper'
 
-export const AuthMenu = props => {
+export interface ItemButton {
+    label: string,
+    icon: string,
+    destiny: string,
+}
+
+interface Props {
+    items: Array<ItemButton>
+    screenProps: any
+    navigation: any
+}
+
+export const AuthMenu = (props: Props) => {
     return (
         <View style={styles.bottonContainer}>
             {props.items.map((item, index) => {
@@ -20,7 +32,7 @@ export const AuthMenu = props => {
     )
 }
 
-export default styles = StyleSheet.create({
+const styles = StyleSheet.create({
     appContainer: {
         height: '100%',
         width: '100%',
@@ -45,3 +57,5 @@ export default styles = StyleSheet.create({
         borderRadius: 0,
     },
 })
+
+export default styles

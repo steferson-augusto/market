@@ -11,35 +11,19 @@ import Lists from './pages/Lists'
 import Settings from './pages/Settings'
 import Shop from './pages/Shop'
 
+const createTabOption = (screen, title, icon) => ({
+  screen,
+  navigationOptions: {
+    title,
+    tabBarIcon: ({ tintColor }) => <Icon name={icon} size={20} color={tintColor} />
+  },
+})
+
 const Home = createMaterialBottomTabNavigator({
-  Album: {
-    screen: Lists,
-    navigationOptions: {
-      title: 'Listas',
-      tabBarIcon: ({ tintColor }) => <Icon name="list" size={20} color={tintColor} />
-    },
-  },
-  Library: {
-    screen: History,
-    navigationOptions: {
-      title: 'Pedidos',
-      tabBarIcon: ({ tintColor }) => <Icon name="history" size={20} color={tintColor} />
-    }
-  },
-  History: {
-    screen: Shop,
-    navigationOptions: {
-      title: 'Comprar',
-      tabBarIcon: ({ tintColor }) => <Icon name="shopping-basket" size={20} color={tintColor} />
-    },
-  },
-  Cart: {
-    screen: Settings,
-    navigationOptions: {
-      title: 'Configurações',
-      tabBarIcon: ({ tintColor }) => <Icon name="settings" size={20} color={tintColor} />
-    },
-  },
+  Album: createTabOption(Lists, 'Listas', 'list'),
+  Library: createTabOption(History, 'Pedidos', 'history'),
+  History: createTabOption(Shop, 'Comprar', 'shopping-basket'),
+  Cart: createTabOption(Settings, 'Configurações', 'settings'),
 }, {
   initialRouteName: 'Album',
   activeColor: '#efefef',
