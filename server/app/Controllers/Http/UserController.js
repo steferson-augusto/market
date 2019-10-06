@@ -3,6 +3,7 @@ const Mail = use('Mail')
 const { validateAll } = use('Validator')
 const randomString = require('random-string')
 const User = use("App/Models/User")
+const { MessageError, responseError } = use('./Helpers/MessageError')
 
 const rules = {
     name: 'required|max:90|min:4|alpha',
@@ -21,26 +22,27 @@ const messages = {
 }
 
 class UserController {
-    async store({ request }) {
-        let data = request.only(["email", "password", "password_confirmation", "name"])
+    async store({ request, response }) {
+        try {
+            let data = request.only(["email", "password", "password_confirmation", "name"])
+            const aux = data.name ? data.name.replace(/\s/g, '') : ''
+            const validation = await validateAll({ ...data, name: aux }, rules, messages)
 
-        const aux = data.name ? data.name.replace(/\s/g, '') : ''
-        const validation = await validateAll({ ...data, name: aux }, rules, messages)
+            if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
-        if (validation.fails()) return response.status(400).send({ error: validation.messages() })
+            data.confirmation_token = randomString({ length: 40 })
+            delete data.password_confirmation
+            const user = await User.create(data)
 
-        data.confirmation_token = randomString({ length: 40 })
-        delete data.password_confirmation
-        const user = await User.create(data)
+            await Mail.send('emails.confirm_email', user.toJSON(), (message) => {
+                message
+                    .to(user.email)
+                    .from('steferson1996@gmail.com')
+                    .subject('Confirmação de Email')
+            })
 
-        await Mail.send('emails.confirm_email', user.toJSON(), (message) => {
-            message
-                .to(user.email)
-                .from('steferson1996@gmail.com')
-                .subject('Confirmação de Email')
-        })
-
-        return user
+            return response.status(200).send({ user })
+        } catch { return response.status(500).send(responseError('requestFail')) }
     }
 
     async show({ params }) {
@@ -90,17 +92,9 @@ class UserController {
         }
     }
 
-    async socialAuth({ ally, params, request, auth }) {
+    async socialAuth({ ally, params, request, auth, response }) {
         const { accessToken, provider_id } = request.only(['accessToken', 'provider_id'])
-        if (!accessToken) return {
-            error: [
-                {
-                    field: 'general',
-                    message: 'Usuário inválido',
-                    validation: 'login'
-                }
-            ]
-        }
+        if (!accessToken) return response.status(401).send({ error: MessageError.userInvalid })
         try {
             const { provider } = params
             const socialUser = await ally.driver(provider).getUserByToken(accessToken)
@@ -121,31 +115,15 @@ class UserController {
                     }
                 )
                 const { token } = await auth.generate(user)
-                return { user, token }
+                return response.status(200).send({ user, token })
             } else {
                 const message = (!exists.provider) ? 'Email cadastrado sem rede social' :
                     `Email cadastrado através do ${exists.provider}`
-                return {
-                    error: [
-                        {
-                            field: 'general',
-                            message,
-                            validation: 'login'
-                        }
-                    ]
-                }
+                
+                const error = [{ field: 'general', message, validation: 'login' }]
+                return response.status(401).send({ error })
             }
-        } catch (error) {
-            return {
-                error: [
-                    {
-                        field: 'general',
-                        message: 'Falha na autenticação',
-                        validation: 'login'
-                    }
-                ]
-            }
-        }
+        } catch { return response.status(401).send({ error: MessageError.loginFail }) }
     }
 }
 

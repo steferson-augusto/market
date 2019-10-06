@@ -19,6 +19,29 @@ const MessageError = {
         field: 'general',
         message: 'O item solicitado não foi encontrado',
     }],
+    userInvalid: [{
+        field: 'general',
+        message: 'Usuário inválido',
+    }],
+    passwordResetFailed: [{
+        field: 'general',
+        message: 'Houve uma falha no envio do email, certifique-se de que você informou o email correto',
+    }],
+    recoveryInvalid: [{
+        field: 'general',
+        message: 'Email de recuperação inválido ou expirado',
+    }],
 }
 
-module.exports = MessageError
+const e = 'Falha na requisição, tente novamente ou contate o administrador'
+const responseError = (kind = 'requestFail', errors = [], message = e, field = 'general' ) => {
+    if (kind && MessageError[kind]) {
+        return { error: MessageError[kind] }
+    } else if (errors.length > 0) {
+        return { error: errors }
+    } else {
+        return { error: [{ message, field }] }
+    }
+}
+
+module.exports = { MessageError, responseError }

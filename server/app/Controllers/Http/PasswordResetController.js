@@ -5,6 +5,7 @@ const User = use('App/Models/User')
 const PasswordReset = use('App/Models/PasswordReset')
 const randomString = require('random-string')
 const Mail = use('Mail')
+const { MessageError, responseError } = use('./Helpers/MessageError')
 
 const rules = {
   email: 'required|email|exists:users,email|min:4|max:254',
@@ -22,40 +23,26 @@ const mensagens = {
 }
 
 class PasswordResetController {
-  async sendResetLinkEmail({ request }) {
-    // validate form inputs
-    const validation = await validate(request.only('email'), {
+  async sendResetLinkEmail({ request, response }) {
+    const validation = await validateAll(request.only('email'), {
       email: 'required|email|exists:users,email|min:4|max:254'
     }, mensagens)
 
-    if (validation.fails()) return { error: validation.messages() }
+    if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
     const user = await User.findBy('email', request.input('email'))
     if (user.provider) {
-      return {
-        error: [
-          {
+        const error = [{
             field: 'email',
             message: `Email cadastrado com ${user.provider}, redefina sua senha através da respectiva rede social`
-          }
-        ]
-      }
+        }]
+        return response.send(400).send({ error })
     }
 
     try {
-      // get user
-
       await PasswordReset.query().where('email', user.email).delete()
-
-      const { token } = await PasswordReset.create({
-        email: user.email,
-        token: randomString({ length: 40 })
-      })
-
-      const mailData = {
-        user: user.toJSON(),
-        token
-      }
+      const { token } = await PasswordReset.create({ email: user.email, token: randomString({ length: 40 }) })
+      const mailData = { user: user.toJSON(), token }
 
       await Mail.send('emails.password_reset', mailData, message => {
         message
@@ -64,32 +51,15 @@ class PasswordResetController {
           .subject('Recuperação de Senha')
       })
 
-      return true
-    } catch (error) {
-      return {
-        error: [
-          {
-            field: 'email',
-            message: 'Houve uma falha no envio do email, certifique-se de que você informou o email correto'
-          }
-        ]
-      }
-    }
-
+      return response.status(200).send(true)
+    } catch { return response.status(400).send({ error: MessageError.passwordResetFailed }) }
   }
-
-  // showResetForm({ params, view }) {
-  //   return view.render('layouts.reset_pass', { token: params.token })
-  // }
 
   async reset({ request, response }) {
     // validate form inputs
     const validation = await validateAll(request.all(), rules, mensagens)
 
-    if (validation.fails()) {
-      const error = validation.messages()
-      return { error }
-    }
+    if (validation.fails()) return response.status(400).send({ error: validation.messages() })
 
     try {
       // get user by the provider email
@@ -101,15 +71,7 @@ class PasswordResetController {
         .where('token', request.input('token'))
         .first()
 
-      if (!token) {
-        return { error: [
-          {
-            field: 'general',
-            message: 'Email de recuperação inválido ou expirado',
-            validation: 'token'
-          }
-        ]}
-      }
+      if (!token) return response.status(400).send({ error: MessageError.recoveryInvalid })
 
       user.password = request.input('password')
       await user.save()
@@ -118,16 +80,7 @@ class PasswordResetController {
       await PasswordReset.query().where('email', user.email).delete()
 
       return response.status(200).send(true)
-    } catch (error) {
-      // display error message
-      return { error: [
-        {
-          field: 'general',
-          message: 'Falha na requisição',
-          validation: 'general'
-        }
-      ]}
-    }
+    } catch { return response.status(500).send({ error: MessageError.requestFail }) }
   }
 }
 
