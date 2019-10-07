@@ -51,6 +51,10 @@ Route.post('/admin/products/filter', 'adminControllers/ProductController.index')
 Route.post('/admin/products', 'adminControllers/ProductController.store').middleware(['auth', 'admin'])
 Route.put('/admin/products/:id', 'adminControllers/ProductController.update').middleware(['auth', 'admin'])
 
+//============================== Products ==================================
+Route.get('sections', 'SectionController.index').middleware('auth')
+Route.get('sections/:id', 'SectionController.show').middleware('auth')
+
 //==================== View - Confirmação de email ====================
 Route.get('register/confirm', ({ view }) => {
     return view.render('layouts.confirmed_email')

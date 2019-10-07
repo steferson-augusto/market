@@ -29,6 +29,7 @@
     "@adonisjs/mail": "^3.0.9",
     "@adonisjs/session": "^1.0.29",
     "@adonisjs/validator": "^5.0.6",
+    "adonis-cli": "^2.1.9",
     "global": "^4.4.0",
     "mysql": "^2.17.1",
     "pg": "^7.12.1",
