@@ -5,7 +5,7 @@ import { SwitchActions } from 'react-navigation'
 
 import api from '../../services/api'
 import { hasError, getError, responseToError, Errors } from '../../services/errors'
-import { Logo } from './Utils/Components'
+import { Logo } from './utils/Components'
 import stylesMain, { AuthMenu, ItemButton } from './style'
 
 interface Form {

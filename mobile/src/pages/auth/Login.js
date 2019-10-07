@@ -7,8 +7,8 @@ import { GoogleSignin, GoogleSigninButton, statusCodes } from 'react-native-goog
 
 import api from '../../services/api'
 import stylesMain, { AuthMenu } from './style'
-import { Logo } from './Utils/Components'
-import { ButtonFacebook } from './Utils/SocialButtons'
+import { Logo } from './utils/Components'
+import { ButtonFacebook } from './utils/SocialButtons'
 
 const items = [
     {
