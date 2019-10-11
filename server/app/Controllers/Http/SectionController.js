@@ -12,7 +12,9 @@ class SectionController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-  async index({ response }) {
+  async index(x) {
+    return 1
+    const { response } = x
     const sections = await Section.query().where('active', true).orderBy('name', 'asc').pluck('name')
     return response.status(200).send(sections)
   }

@@ -38,15 +38,16 @@ const Login = (props) => {
         if (values.email.length + values.password.length === 0) {
             setState({ error: 'Preencha email e senha para continuar!', loading: false })
         } else {
-            try {
-                const { data: { token } } = await api.post('/sessions', values)
-                await AsyncStorage.setItem('@RPG:token', token)
-                setState({ loading: false, error: '' })
-                props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' }))
-            } catch ({ response }) {
-                const e = response ? 'Verifique suas credenciais!' : 'Não houve comunicação com o servidor'
-                setState({ loading: false, error: e })
-            }
+            // try {
+            //     const { data: { token } } = await api.post('/sessions', values)
+            //     await AsyncStorage.setItem('@RPG:token', token)
+            //     setState({ loading: false, error: '' })
+            //     props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' }))
+            // } catch ({ response }) {
+            //     const e = response ? 'Verifique suas credenciais!' : 'Não houve comunicação com o servidor'
+            //     setState({ loading: false, error: e })
+            // }
+            setTimeout(() => props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' })), 500)
         }
     }
 

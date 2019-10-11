@@ -67,7 +67,7 @@ const TableComponent = props => {
         try {
             const { data: { data, total } } = await api.post(`/admin/${model}/filter`, { ...params, filters })
             
-            dispatch({ type: typeAction, payload: { data, total } })
+            dispatch({ type: typeAction, payload: { data, total: parseInt(total) } })
         } catch ({ response: { status, data: { error } } }) {
             setSnack(convertError(status, error))
         }

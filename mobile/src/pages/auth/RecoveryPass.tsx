@@ -28,12 +28,13 @@ const RecoveryPass = props => {
 
     const handleSignUp = async () => {
         setState({ ...state, loading: true })
-        try {
-            await api.post('/password/email', { email })
-            setState({ loading: false, error: [], visible: true })
-        } catch ({ response }) {
-            setState({ ...state, loading: false, error: responseToError(response) })
-        }
+        // try {
+        //     await api.post('/password/email', { email })
+        //     setState({ loading: false, error: [], visible: true })
+        // } catch ({ response }) {
+        //     setState({ ...state, loading: false, error: responseToError(response) })
+        // }
+        setTimeout(() => setState({ loading: false, error: [], visible: true }), 600)
     }
 
     return (

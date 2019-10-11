@@ -37,16 +37,19 @@ const SignUp = props => {
 
     const handleSignup = async () => {
         setState({ ...state, loading: true })
-        try {
-            await api.post('/users', values)
-            setState({ loading: false, error: [] })
+        // try {
+        //     await api.post('/users', values)
+        //     setState({ loading: false, error: [] })
 
-            setTimeout(() => {
-                props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Login' }))
-            }, 2500)
-        } catch ({ response }) {
-            setState({ loading: false, error: responseToError(response) })
-        }
+        //     setTimeout(() => {
+        //         props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Login' }))
+        //     }, 2500)
+        // } catch ({ response }) {
+        //     setState({ loading: false, error: responseToError(response) })
+        // }
+        setTimeout(() => {
+            props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Login' }))
+        }, 1000)
     }
 
     const handleChangeInput = field => text => setValues({ ...values, [field]: text }) 

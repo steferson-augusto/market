@@ -3,6 +3,7 @@ const Mail = use('Mail')
 const { validateAll } = use('Validator')
 const randomString = require('random-string')
 const User = use("App/Models/User")
+const Administrator = use("App/Models/Administrator")
 const { MessageError, responseError } = use('./Helpers/MessageError')
 
 const rules = {
@@ -22,6 +23,15 @@ const messages = {
 }
 
 class UserController {
+    async index({ response }) {
+        try {
+            const users = await User.all()
+            return response.status(200).send(users)
+        } catch {
+            return response.status(500).send("Falha na requisicao")
+        }
+    }
+
     async store({ request, response }) {
         try {
             let data = request.only(["email", "password", "password_confirmation", "name"])
@@ -42,7 +52,7 @@ class UserController {
             })
 
             return response.status(200).send({ user })
-        } catch { return response.status(500).send(responseError('requestFail')) }
+        } catch (e) { return response.status(500).send({ error: responseError('requestFail'), e }) }
     }
 
     async show({ params }) {
@@ -124,6 +134,15 @@ class UserController {
                 return response.status(401).send({ error })
             }
         } catch { return response.status(401).send({ error: MessageError.loginFail }) }
+    }
+
+    async setAdmin({ params, response }) {
+        try {
+            const admin = await Administrator.create({ user_id: params.id, active: true })
+            return response.status(201).send(admin)
+        } catch (e) {
+            return response.status(500).send({ error: responseError('requestFail'), e })
+        }
     }
 }
 

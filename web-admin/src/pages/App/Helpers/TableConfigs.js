@@ -62,20 +62,12 @@ export const numberFilterOperations = [
     'lessThanOrEqual',
 ]
 
-const ActiveEditorBase = ({ value = "", onValueChange, classes }) => {
-    const handleChange = event => {
-        const { value: targetValue } = event.target
-        onValueChange(targetValue)
-    }
+const ActiveEditorBase = ({ value = true, onValueChange, classes }) => {
+    const handleChange = event => onValueChange(event.target.value)
     return (
-        <Select
-            className={classes.select}
-            value={value}
-            onChange={handleChange}
-        >
-            <MenuItem value={""}>{""}</MenuItem>
-            <MenuItem value={1}>Ativo</MenuItem>
-            <MenuItem value={0}>Inativo</MenuItem>
+        <Select className={classes.select} value={value} onChange={handleChange} >
+            <MenuItem value={true}>Ativo</MenuItem>
+            <MenuItem value={false}>Inativo</MenuItem>
         </Select>
     )
 }
@@ -83,12 +75,9 @@ const ActiveEditorBase = ({ value = "", onValueChange, classes }) => {
 const ActiveEditor = withStyles(style)(ActiveEditorBase)
 
 const ActiveFormatter = ({ value }) => {
-    const label = (value === 1) ? 'Ativo' : (value === 0) ? 'Inativo' : 'Desconhecido'
-    const color = (value === 1) ? 'primary' : 'default'
+    const state = value ? { label: 'Ativo', color: 'primary' } : { label: 'Inativo', color: 'default' }
     // const icon = (value === 1) ? <CheckIcon /> : <CloseIcon />
-    return (
-        <Chip label={label} color={color} />
-    )
+    return <Chip label={state.label} color={state.color} />
 }
 
 export const ActiveTypeProvider = props => (

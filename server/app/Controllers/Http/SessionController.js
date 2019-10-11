@@ -36,6 +36,10 @@ class SessionController {
       }
     } catch (e) { return response.status(500).send({ error: MessageError.requestFail }) }
   }
+
+  async app({ response }){
+    return response.status(200).send('SUCESSO')
+  }
 }
 
 module.exports = SessionController
