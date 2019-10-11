@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, FlatList, Text } from 'react-native'
-import { Searchbar } from 'react-native-paper'
+import { Searchbar, Card } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 
 // import api from '../services/api'
