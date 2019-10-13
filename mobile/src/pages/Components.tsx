@@ -3,12 +3,13 @@ import { StyleSheet, } from 'react-native'
 import { Appbar, Badge } from 'react-native-paper'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 
+export const IconCart = () => <IconMaterial name="shopping-cart" size={24} color="white" />
+
 interface HeaderProps {
     title: string
     subtitle?: string
 }
 export const Header = ({ title, subtitle }: HeaderProps ) => {
-    const getIcon = () => <IconMaterial name="shopping-cart" size={24} color="white" />
     return (
         <Appbar.Header>
             <Appbar.Content
@@ -16,7 +17,7 @@ export const Header = ({ title, subtitle }: HeaderProps ) => {
                 subtitle={subtitle}
             />
            
-            <Appbar.Action icon={getIcon} />
+            <Appbar.Action icon={IconCart} />
             <Badge style={styles.badge}>3</Badge>
             
         </Appbar.Header>

@@ -11,7 +11,7 @@ import History from './pages/History'
 import Lists from './pages/Lists'
 import Settings from './pages/Settings'
 import Shop from './pages/Shop'
-import { Header } from './pages/utils/Components'
+import { Header } from './pages/Components'
 
 const createTabOption = (screen, title, icon) => {
   return {
@@ -26,7 +26,7 @@ const createTabOption = (screen, title, icon) => {
 const Main = createMaterialBottomTabNavigator({
   Album: createTabOption(Lists, 'Listas', 'list'),
   Library: createTabOption(History, 'Pedidos', 'history'),
-  History: createTabOption(Shop, 'Comprar', 'shopping-basket'),
+  History: createTabOption(Shop, 'Produtos', 'shopping-basket'),
   Cart: createTabOption(Settings, 'Configurações', 'settings'),
 }, {
   initialRouteName: 'Album',
