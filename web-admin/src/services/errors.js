@@ -17,3 +17,8 @@ export const getError = (field, errors) => {
     })
     return message
 }
+
+export const responseToError = response => {
+    if (!response) return [{ field: 'general', message: 'Não foi possível comunicar com o servidor' }]
+    return response.data.error
+}

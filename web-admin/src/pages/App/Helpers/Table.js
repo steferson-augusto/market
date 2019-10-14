@@ -97,7 +97,6 @@ const TableComponent = props => {
             setLoading(true)
             try {
                 const { data: { data: result } } = await api.post(`/admin/${model}`, added[0])
-                console.log(added[0])
                 dispatch({ type: typeAction, payload: { data: [result, ...data] } })
                 setSnack({ open: true, variant: 'success', message: 'Adicionado com sucesso' })
             } catch ({ response: { status, data: { error } } }) {

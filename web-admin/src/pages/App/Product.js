@@ -14,10 +14,12 @@ import { pagingPanelMessages, ActiveTypeProvider, Command, EditCell, NumberEdito
 
 const Product = () => {
     const dispatch = useDispatch()
-    const { data, total, editingRowIds, addedRows, rowChanges, filters, hiddenColumnNames, ...params } = useSelector(state => state.products)
-    const [marks, setMarks] = useState([])
-    const [sections, setSections] = useState([])
-    const [ums, setUms] = useState([])
+    const { data, total, editingRowIds, addedRows, rowChanges, ums,
+            filters, hiddenColumnNames, marks, sections, ...params 
+    } = useSelector(state => state.products)
+    // const [marks, setMarks] = useState([])
+    // const [sections, setSections] = useState([])
+    // const [ums, setUms] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState(false)
     const [snack, setSnack] = useState({
@@ -37,15 +39,25 @@ const Product = () => {
         { name: 'active', title: 'Status' },
         { name: 'description', title: 'Descrição' },
     ]
+    const tableColumnExtensions = [
+        { columnName: 'id', width: 40 },
+        { columnName: 'name', width: '30%' },
+        { columnName: 'mark_id', width: 90 },
+        { columnName: 'section_id', width: 90 },
+        { columnName: 'um_id', width: 90 },
+        { columnName: 'price', width: 80 },
+        { columnName: 'active', width: 80 },
+        { columnName: 'description', width: 'auto' },
+    ]
 
     const getData = async () => {
         setLoading(true)
         try {
             const { data: { marks, sections, ums, data: { data, total }} } = await api.post(`/admin/products/filter`, { ...params, filters })
-            setMarks(marks)
-            setSections(sections)
-            setUms(ums)
-            dispatch({ type: SET_PRODUCTS, payload: { data, total } })
+            // setMarks(marks)
+            // setSections(sections)
+            // setUms(ums)
+            dispatch({ type: SET_PRODUCTS, payload: { data, marks, sections, ums, total: parseInt(total) } })
         } catch ({ response: { status, data: { error } } }) {
             setSnack(convertError(status, error))
         }
@@ -73,6 +85,7 @@ const Product = () => {
         if (added) {
             setLoading(true)
             try {
+                console.log(added[0])
                 const { data: { data: result } } = await api.post(`/admin/products`, added[0])
                 dispatch({ type: SET_PRODUCTS, payload: { data: [result, ...data] } })
                 setSnack({ open: true, variant: 'success', message: 'Adicionado com sucesso' })
@@ -84,6 +97,7 @@ const Product = () => {
         if (changed) {
             const [index] = Object.keys(changed)
             if (changed[index]) {
+                console.log(changed[index])
                 setLoading(true)
                 const { id } = data[index]
                 try {
@@ -110,10 +124,7 @@ const Product = () => {
     return (
         <Paper style={{ position: 'relative' }}>
             {loading && <LinearProgress />}
-            <Grid
-                rows={data}
-                columns={columns}
-            >
+            <Grid rows={data} columns={columns} >
                 <PagingState
                     currentPage={params.page}
                     onCurrentPageChange={changeState('page')}
@@ -144,7 +155,7 @@ const Product = () => {
                     sorting={params.sorting}
                     onSortingChange={changeState('sorting')}
                 />
-                <Table messages={noData} />
+                <Table messages={noData} columnExtensions={tableColumnExtensions} />
 
                 <TableHeaderRow showSortingControls messages={sortingHint} />
                 <TableEditRow cellComponent={EditCell} />
@@ -154,14 +165,8 @@ const Product = () => {
                     showEditCommand
                     commandComponent={Command}
                 />
-                <PagingPanel
-                    pageSizes={pageSizes}
-                    messages={pagingPanelMessages}
-                />
-                <FilteringState
-                    filters={filters}
-                    onFiltersChange={changeState('filters')}
-                />
+                <PagingPanel pageSizes={pageSizes} messages={pagingPanelMessages} />
+                <FilteringState filters={filters} onFiltersChange={changeState('filters')} />
                 <CustomPaging totalCount={total} />
 
                 {filter && <TableFilterRow showFilterSelector messages={TableFilterRowMessages} />}

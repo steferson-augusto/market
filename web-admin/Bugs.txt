@@ -1,0 +1,2 @@
+1- Requisições sem resposta do servidor geram erro e crash a página
+2- Tela Produtos -> ao adicionar um valor e apagar todos os números há um erro e crasha a página

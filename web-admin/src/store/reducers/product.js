@@ -10,6 +10,9 @@ const initialState = {
     addedRows: [],
     filters: [],
     hiddenColumnNames: ['id', 'description'],
+    marks: [],
+    sections: [],
+    ums: [],
     data: []
 }
 

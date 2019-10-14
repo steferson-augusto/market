@@ -300,11 +300,7 @@ const SelectEditorBase = ({ value = 1, onValueChange, classes, data: values }) =
     }
     const data = [{id: '', text: ''}, ...values]
     return (
-        <Select
-            className={classes.select}
-            value={value}
-            onChange={handleChange}
-        >
+        <Select className={classes.select} value={value} onChange={handleChange} >
             {data.map(d => <MenuItem key={`${d.id}`} value={d.id}>{d.name}</MenuItem>)}
         </Select>
     )
@@ -312,7 +308,8 @@ const SelectEditorBase = ({ value = 1, onValueChange, classes, data: values }) =
 
 const SelectEditor = withStyles(style)(SelectEditorBase)
 
-const SelectFormatter = ({ value, data }) => {
+const SelectFormatter = ({ value, data, ...rest }) => {
+    console.log(rest)
     const item = data.find(d => d.id == value)
     return item ? item.name : ''
 }
