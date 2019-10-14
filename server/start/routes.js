@@ -57,6 +57,8 @@ Route.put('/admin/products/:id', 'adminControllers/ProductController.update').mi
 
 //============================== Products ==================================
 Route.get('products', 'ProductController.index').middleware('auth')
+Route.post('products/:id/image', 'ImageController.store').middleware('auth')
+Route.get('products/:id/image', 'ImageController.show')
 Route.get('sections', 'SectionController.index').middleware('auth')
 Route.get('sections/:id', 'SectionController.show').middleware('auth')
 

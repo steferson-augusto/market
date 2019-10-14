@@ -1,33 +1,18 @@
 'use strict'
 
 const Section = use("App/Models/Section")
+const { responseError } = use('./Helpers/MessageError')
 
 class SectionController {
-  /**
-     * Show a list of all products.
-     * GET products
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-  async index(x) {
-    return 1
-    const { response } = x
-    const sections = await Section.query().where('active', true).orderBy('name', 'asc').pluck('name')
-    return response.status(200).send(sections)
+  async index({ response }) {
+    try {
+      const sections = await Section.query().where('active', true).orderBy('name', 'asc').select(['id', 'name']).fetch()
+      return response.status(200).send(sections)
+    } catch {
+      return response.status(500).send(responseError())
+    }
   }
 
-  /**
-   * Display a single product.
-   * GET products/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
   async show({ params: { id }, response }) {
     const section = await Section.query().where({ id }).where('active', true).fetch()
     return response.status(200).send(section)

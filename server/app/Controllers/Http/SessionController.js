@@ -3,22 +3,23 @@
 const Database = use('Database')
 const MessageError = use('./Helpers/MessageError')
 
+const select = ['users.id', 'users.email', 'users.name', 'users.date_birth', 'users.image_path',
+'users.active', 'users.description']
+
 class SessionController {
   // Padronizar MessageError e response.status
   async create({ request, auth }) {
     const { email, password } = request.all()
-
     const { token } = await auth.attempt(email, password)
     delete token.refreshToken
-    return { token, user: auth.user }
+    const user = await Database.table('users').where({ email }).select(select).first()
+    return { token, user }
   }
 
   async createAdmin({ request, response, auth }) {
     const { email, password } = request.only(['email', 'password'])
 
     try {
-      const select = ['users.id', 'users.email', 'users.name', 'users.date_birth', 'users.image_path',
-        'users.active', 'users.description']
       const user = await Database
         .table('users')
         .innerJoin('administrators', 'users.id', 'administrators.user_id')
