@@ -19,4 +19,9 @@ api.interceptors.request.use(async (config) => {
     }
 })
 
+export const getToken = (): string => {
+    const token = async () => await AsyncStorage.getItem('@RPG:token')
+    return `Bearer ${token}`
+}
+
 export default api

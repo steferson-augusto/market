@@ -1,13 +1,33 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, FlatList, Image } from 'react-native'
-import { Searchbar, Surface, Subheading, Text, IconButton, Colors, Button  } from 'react-native-paper'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { View, StyleSheet, FlatList, Image, Picker } from 'react-native'
+import { Searchbar, Surface, Subheading, Text, IconButton, Colors, Menu, Button } from 'react-native-paper'
+import { useDispatch, useSelector } from "react-redux"
 
 import api from '../services/api'
+import { Select } from './Components'
+
+const orderOptions = [
+    { name: 'Menor preço', id: 'price:asc' },
+    { name: 'Maior preço', id: 'price:desc' },
+    { name: 'Nome crescente', id: 'name:asc' },
+    { name: 'Nome decrescente', id: 'name:desc' },
+]
+
+interface MenuType {
+    section: boolean
+    order: boolean
+}
 
 const Shop = () => {
+    const dispatch = useDispatch()
+    const sections = useSelector(state => state.sections.data)
     const [query, setQuery] = useState('')
+    const [filterOpen, setFilterOpen] = useState(false)
     const [products, setProducts] = useState([])
+    const [menu, setMenu] = useState<MenuType>({ section: false, order: false })
+    const [section, setSection] = useState(0)
+    const [order, setOrder] = useState(0)
+    console.log(sections)
 
     const getData = async () => {
         try {
@@ -23,17 +43,13 @@ const Shop = () => {
         getData()
     }, [])
 
-    const renderData = ({ item }) => {
-        return (
-            <View style={styles.container}>
-                <Text>{item.name}</Text>
-            </View>
-        )
-    }
+    const toggleFilterOpen = () => setFilterOpen(!filterOpen)
+
+    const toggleMenuOpen = attr => setMenu({ ...menu, [attr]: true })
+    const toggleMenuClose = attr => setMenu({ ...menu, [attr]: false })
 
     const renderItem = (product) => {
         const { name, price, id } = product.item
-        console.log(product)
         const source = { uri: `http://10.0.2.2:3333/products/${id}/image` }
         return (
             <Surface style={styles.surface}>
@@ -61,10 +77,20 @@ const Shop = () => {
                 <Searchbar
                     placeholder="Search"
                     onChangeText={text => setQuery(text)}
-                    value={query} style={{ width: '80%' }}
+                    value={query} style={styles.searchBar}
                 />
-                <Icon name="chevron-down" size={20} />
+                <IconButton icon="filter-list" color={Colors.grey500} style={styles.iconButtonFilter}
+                    size={20} onPress={toggleFilterOpen}
+                />
             </View>
+
+            {filterOpen && (
+                <View style={styles.containerFilter}>
+                    <Select label="Seção" data={sections} selected={section} onChange={setSection} />
+                    <Select label="Ordenar" data={orderOptions} selected={order} onChange={setOrder} all=" " style={{ height: 30, width: 200 }} />
+                </View>
+            )}
+            
             <FlatList
                 data={products}
                 renderItem={product => renderItem(product)}
@@ -147,6 +173,25 @@ const styles = StyleSheet.create({
         color: '#777',
         fontWeight: 'bold',
     },
+    containerFilter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        paddingHorizontal: '3%',
+        paddingVertical: 8,
+        // borderWidth: 1, borderStyle: 'solid', borderColor: '#000'
+    },
+    iconButtonFilter: {
+        marginHorizontal: 12
+    },
+    searchBar: {
+        flex: 1,
+        marginLeft: '3%',
+    },
+    section: {
+        padding: 0
+    }
 })
 
 export default Shop

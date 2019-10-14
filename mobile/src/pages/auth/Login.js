@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { AsyncStorage, View, StyleSheet, Image } from 'react-native'
 import { Button, TouchableRipple, TextInput, HelperText } from 'react-native-paper'
+import { useDispatch } from 'react-redux'
 import { SwitchActions } from 'react-navigation'
 import { AccessToken, LoginManager } from 'react-native-fbsdk'
 import { GoogleSignin, GoogleSigninButton, statusCodes } from 'react-native-google-signin'
 
 import api from '../../services/api'
+import { SET_USER, SET_SECTIONS } from '../../store/actionTypes'
 import stylesMain, { AuthMenu } from './style'
 import { Logo } from './utils/Components'
 import { ButtonFacebook } from './utils/SocialButtons'
@@ -23,6 +25,7 @@ const items = [
 ]
 
 const Login = (props) => {
+    const dispatch = useDispatch()
     const [values, setValues] = useState({ email: 'steferson_a@hotmail.com', password: '123456' })
     const [state, setState] = useState({ loading: false, error: '' })
 
@@ -38,16 +41,18 @@ const Login = (props) => {
         if (values.email.length + values.password.length === 0) {
             setState({ error: 'Preencha email e senha para continuar!', loading: false })
         } else {
-            // try {
-            //     const { data: { token } } = await api.post('/sessions', values)
-            //     await AsyncStorage.setItem('@RPG:token', token)
-            //     setState({ loading: false, error: '' })
-            //     props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' }))
-            // } catch ({ response }) {
-            //     const e = response ? 'Verifique suas credenciais!' : 'Não houve comunicação com o servidor'
-            //     setState({ loading: false, error: e })
-            // }
-            setTimeout(() => props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' })), 500)
+            try {
+                const { data: { token, user } } = await api.post('/sessions', values)
+                await AsyncStorage.setItem('@RPG:token', token)
+                const { data } = await api.get('/sections')
+                dispatch({ type: SET_USER, payload: user })
+                dispatch({ type: SET_SECTIONS, payload: data })
+                setState({ loading: false, error: '' })
+                props.navigation.dispatch(SwitchActions.jumpTo({ routeName: 'Home' }))
+            } catch ({ response }) {
+                const e = response ? 'Verifique suas credenciais!' : 'Não houve comunicação com o servidor'
+                setState({ loading: false, error: e })
+            }
         }
     }
 
