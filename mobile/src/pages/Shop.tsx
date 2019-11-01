@@ -1,52 +1,73 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, FlatList, Image, Picker } from 'react-native'
-import { Searchbar, Surface, Subheading, Text, IconButton, Colors, Menu, Button } from 'react-native-paper'
+import { View, StyleSheet, FlatList, Image } from 'react-native'
+import { Searchbar, Surface, Subheading, Text, IconButton, Colors } from 'react-native-paper'
 import { useDispatch, useSelector } from "react-redux"
 
 import api from '../services/api'
-import { Select } from './Components'
+import { Product } from '../services/types'
+import { SET_PRODUCTS, RESET_PRODUCTS } from '../store/actionTypes'
+import { Select, LoaderProducts } from './Components'
 
 const orderOptions = [
-    { name: 'Menor preço', id: 'price:asc' },
-    { name: 'Maior preço', id: 'price:desc' },
-    { name: 'Nome crescente', id: 'name:asc' },
-    { name: 'Nome decrescente', id: 'name:desc' },
+    { name: 'Menor preço', id: 0 },
+    { name: 'Maior preço', id: 1 },
+    { name: 'Nome crescente', id: 2 },
+    { name: 'Nome decrescente', id: 3 },
 ]
 
-interface MenuType {
-    section: boolean
-    order: boolean
-}
+const orders = [
+    { columnName: 'price', direction: 'asc' },
+    { columnName: 'price', direction: 'desc' },
+    { columnName: 'name', direction: 'asc' },
+    { columnName: 'name', direction: 'desc' },
+]
 
 const Shop = () => {
     const dispatch = useDispatch()
+    const { data: products, total } = useSelector(state => state.products)
     const sections = useSelector(state => state.sections.data)
+    const [loading, setLoading] = useState(true)
     const [query, setQuery] = useState('')
     const [filterOpen, setFilterOpen] = useState(false)
-    const [products, setProducts] = useState([])
-    const [menu, setMenu] = useState<MenuType>({ section: false, order: false })
+    // const [products, setProducts] = useState([])
     const [section, setSection] = useState(0)
-    const [order, setOrder] = useState(0)
-    console.log(sections)
+    const [order, setOrder] = useState(2)
+    const [page, setPage] = useState(0)
 
     const getData = async () => {
-        try {
-            const { data } = await api.get('/products')
-            setProducts(data)
-            console.log(data)
-        } catch (response) {
-
+        console.log(parseInt(total))
+        console.log(products.length)
+        console.log(endList())
+        if(!endList()) {
+            try {
+                setLoading(true)
+                if (page == 0) dispatch({ type: RESET_PRODUCTS, payload: 0 })
+                const { data } = await api.post('/products', { section, ...orders[order], page, perPage: 2 })
+                
+                dispatch({ type: SET_PRODUCTS, payload: data })
+                setLoading(false)
+            } catch (response) {
+                console.log('Erro na requisiçao')
+            }
+        } else {
+            console.log('end list')
         }
     }
 
     useEffect(() => {
+        dispatch({ type: RESET_PRODUCTS, payload: 0 })
+        setPage(0)
+    }, [section, order])
+
+    useEffect(() => {
         getData()
-    }, [])
+    }, [page])
+
+    const endReached = () => setPage(page + 1)
 
     const toggleFilterOpen = () => setFilterOpen(!filterOpen)
 
-    const toggleMenuOpen = attr => setMenu({ ...menu, [attr]: true })
-    const toggleMenuClose = attr => setMenu({ ...menu, [attr]: false })
+    const endList = () => products.length > 0 && parseInt(total) <= products.length
 
     const renderItem = (product) => {
         const { name, price, id } = product.item
@@ -71,6 +92,12 @@ const Shop = () => {
         )
     }
 
+    const renderLoading = () => {
+        if (endList()) return <Text style={styles.fullProducts}>Não há mais produtos</Text>
+        if(!loading) return null
+        return <LoaderProducts loading={true} num={3} />
+    }
+
     return (
         <>
             <View style={styles.containerNav}>
@@ -87,18 +114,22 @@ const Shop = () => {
             {filterOpen && (
                 <View style={styles.containerFilter}>
                     <Select label="Seção" data={sections} selected={section} onChange={setSection} />
-                    <Select label="Ordenar" data={orderOptions} selected={order} onChange={setOrder} all=" " style={{ height: 30, width: 200 }} />
+                    <Select label="Ordenar" data={orderOptions} selected={order} onChange={setOrder} all="" style={{ height: 30, width: 200 }} />
                 </View>
             )}
             
             <FlatList
                 data={products}
                 renderItem={product => renderItem(product)}
-                keyExtractor={item => `${item.id}`}
+                keyExtractor={(item: Product, index: number) => `${index}`}
+                onEndReached={endReached}
+                onEndReachedThreshold={0.1}
+                ListFooterComponent={renderLoading}
             />
+            {/* <LoaderProducts loading={true} num={3} /> */}
             {/* {renderItem()}
             {renderItem()} */}
-        </>
+        </ >
     )
 }
 
@@ -191,6 +222,13 @@ const styles = StyleSheet.create({
     },
     section: {
         padding: 0
+    },
+    fullProducts: {
+        alignSelf: 'center',
+        paddingVertical: 20,
+        fontSize: 20,
+        color: '#888',
+        fontWeight: 'bold'
     }
 })
 
