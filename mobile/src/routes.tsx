@@ -3,6 +3,7 @@ import { createAppContainer, createSwitchNavigator } from 'react-navigation'
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
 import { createStackNavigator } from 'react-navigation-stack'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import { IconButton, Colors } from 'react-native-paper'
 
 import Login from './pages/auth/Login'
 import Signup from './pages/auth/Signup'
@@ -23,28 +24,57 @@ const createTabOption = (screen, title, icon) => {
   }
 }
 
-const Main = createMaterialBottomTabNavigator({
-  Album: createTabOption(Lists, 'Listas', 'list'),
-  Library: createTabOption(History, 'Pedidos', 'history'),
-  History: createTabOption(Shop, 'Produtos', 'shopping-basket'),
-  Cart: createTabOption(Settings, 'Configurações', 'settings'),
+const navOption = {
+  headerMode: 'float',
+  defaultNavigationOptions: ({ navigation }) => ({
+    title: 'LOGONAME',
+    headerTitleStyle: {
+      textAlign: "center",
+      flex: 1,
+      color: '#fff'
+    },
+    headerStyle: {
+      backgroundColor: Colors.deepPurpleA700,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    headerLeft: () => <IconButton icon='chevron-left' color='transparent' size={32} />,
+    headerRight: () => <IconButton icon='chevron-right' color='transparent' size={32} />,
+  })
+}
+
+const ShopStack = createStackNavigator({
+  Products: Shop, 
+}, navOption)
+
+const Home = createMaterialBottomTabNavigator({
+  Lists: createTabOption(Lists, 'Listas', 'list'),
+  History: createTabOption(History, 'Pedidos', 'history'),
+  Shop: createTabOption(ShopStack, 'Produtos', 'shopping-basket'),
+  Settings: createTabOption(Settings, 'Configurações', 'settings'),
 }, {
-  initialRouteName: 'Album',
+  initialRouteName: 'Lists',
   activeColor: '#efefef',
 })
 
-const titles = ['LISTA DE COMPRAS', 'PEDIDOS', 'COMPRAR', 'CONFIGURAÇÕES']
-const Home = createStackNavigator(
-  {
-    Main: {
-      screen: Main,
-      navigationOptions: ({ navigation }) => ({ header: <Header title={titles[navigation.state.index]} /> }),
-    }
-  },
-  {
+// const titles = ['LISTA DE COMPRAS', 'PEDIDOS', 'COMPRAR', 'CONFIGURAÇÕES']
+// const Home = createStackNavigator(
+//   {
+//     Main: {
+//       screen: Main,
+//       navigationOptions: ({ navigation }) => ({ header: <Header title={titles[navigation.state.index]} /> }),
+//     }
+//   },
+//   {
 
-  }
-)
+//   }
+// )
 
 const Routes = createAppContainer(
   createSwitchNavigator({

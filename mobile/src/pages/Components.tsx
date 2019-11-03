@@ -1,33 +1,77 @@
-import React from 'react'
-import { StyleSheet, Picker, View } from 'react-native'
-import { Appbar, Badge, Text, Surface } from 'react-native-paper'
+import React, { useState, useRef } from 'react'
+import { useSelector } from 'react-redux'
+import { StyleSheet, Picker, FlatList, Image, View } from 'react-native'
+import { Appbar, Badge, Text, Surface, Colors, IconButton, Paragraph, Button } from 'react-native-paper'
 import { Placeholder, PlaceholderMedia, PlaceholderLine, Shine } from 'rn-placeholder'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
+import Popover from 'react-native-popover-view'
 
 export const IconCart = () => <IconMaterial name="shopping-cart" size={24} color="white" />
 
-interface HeaderProps {
-    title: string
-    subtitle?: string
-}
-export const Header = ({ title, subtitle }: HeaderProps ) => {
+export const Header = ({ navigation }) => {
+    const cart = useSelector(state => state.products.cart)
+    const [visible, setVisible] = useState(false)
+    const ref = useRef()
+    const total = cart.reduce((total, { price, quantity }) => total = total + (price * quantity), 0)
+
+    const renderItem = (product) => {
+        const { name, price, id, quantity } = product.item
+        const source = { uri: `http://localhost:3333/products/${id}/image` }
+        return (
+            <Surface style={styles.containerItem}>
+                <Image source={source} style={styles.image} />
+                <View style={styles.containerProduct}>
+                    <View style={styles.containerDetail}>
+                        <Paragraph>{name}</Paragraph>
+                        <View style={styles.containerPrice}>
+                            <Text style={styles.cipher}>{`${quantity} x R$`}</Text>
+                            <Text style={styles.price}>{price}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.containerAction}>
+                        <IconButton icon="delete" color='#1c227e' size={30} onPress={() => console.log('Pressed')} />
+                    </View>
+                </View>
+            </Surface>
+        )
+    }
+
     return (
         <Appbar.Header>
-            <Appbar.Content
-                title={title}
-                subtitle={subtitle}
-            />
-           
-            <Appbar.Action icon={IconCart} />
-            <Badge style={styles.badge}>3</Badge>
-            
+            <Appbar.Action icon='add' color='transparent' />
+            <Appbar.Content title='PRODUTOS' titleStyle={{alignSelf: "center"}} />
+
+            <Appbar.Action icon={IconCart} onPress={() => setVisible(!visible)} ref={ref} />
+            {cart.length > 0 && <Badge style={styles.badge}>{cart.length}</Badge>}
+
+            <Popover
+                isVisible={visible}
+                fromView={ref.current}
+                onRequestClose={() => setVisible(false)}
+                placement='bottom'
+                backgroundStyle={{ backgroundColor: 'transparent' }}
+                popoverStyle={styles.popoverHeader}
+            >
+                <>
+                    <FlatList
+                        data={cart} style={{ height: 300 }}
+                        renderItem={product => renderItem(product)}
+                        keyExtractor={(item, index) => `${index}`}
+                        showsVerticalScrollIndicator={false}
+                    />
+                    <View style={styles.containerPopoverButton}>
+                        <Text style={{ flex: 1, color: '#eee', fontSize: 18 }}>{`R$ ${total}`}</Text>
+                        <Button mode="contained" color={Colors.pinkA400}>FINALIZAR</Button>
+                    </View>
+                </>
+            </Popover>
         </Appbar.Header>
     )
 }
 
-export const Select = ({ label, data, onChange, selected = 0, all="Todos", style = styles.select }) => {
+export const Select = ({ label, data, onChange, selected = 0, style = styles.select }) => {
     return (
-        <Surface style={styles.surface}>
+        <Surface style={{ elevation: 4, marginHorizontal: 5 }}>
             <Text style={styles.selectLabel}>{label}:</Text>
             <Picker mode='dropdown'
                 selectedValue={selected}
@@ -89,6 +133,7 @@ const styles = StyleSheet.create({
     },
     surface: {
         elevation: 4,
+        backgroundColor: '#888'
     },
     selectLabel: {
         paddingTop: 6,
@@ -120,5 +165,65 @@ const styles = StyleSheet.create({
         width: '30%',
         marginLeft: '30%',
         backgroundColor: '#ddd'
-    }
+    },
+    popoverHeader: {
+        width: 250,
+        backgroundColor: '#1c227e',
+        paddingHorizontal: 6,
+        paddingTop: 10,
+    },
+    containerPopoverButton: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 15,
+    },
+    containerItem: {
+        flexDirection: 'row',
+        height: 55,
+        width: '100%',
+        marginVertical: 1,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        elevation: 4,
+    },
+    image: {
+        width: 40,
+        height: 42,
+        resizeMode: 'contain',
+        marginLeft: 5,
+    },
+    containerProduct: {
+        flex: 1,
+        height: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'stretch',
+    },
+    containerDetail: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    containerAction: {
+        width: 40,
+        justifyContent: 'space-around',
+        alignItems: 'center',
+    },
+    containerPrice: {
+        width: '100%',
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cipher: {
+        fontSize: 13,
+        color: '#aaa',
+        paddingRight: 6,
+    },
+    price: {
+        fontSize: 20,
+        color: '#777',
+        fontWeight: 'bold',
+    },
 })

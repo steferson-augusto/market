@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, FlatList, Image } from 'react-native'
 import { Searchbar, Surface, Subheading, Text, IconButton, Colors } from 'react-native-paper'
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch, useSelector } from 'react-redux'
 
 import api from '../services/api'
 import { Product } from '../services/types'
 import { SET_PRODUCTS, RESET_PRODUCTS } from '../store/actionTypes'
-import { Select, LoaderProducts } from './Components'
+import useDebounce from '../services/hooks/useDebounce'
+import { Select, LoaderProducts, Header } from './Components'
+// import { IconCart } from './Components'
 
 const orderOptions = [
     { name: 'Menor preço', id: 0 },
@@ -22,42 +24,38 @@ const orders = [
     { columnName: 'name', direction: 'desc' },
 ]
 
-const Shop = () => {
+const Shop = ({ navigation }) => {
     const dispatch = useDispatch()
-    const { data: products, total } = useSelector(state => state.products)
+    const { data: products, total, cart } = useSelector(state => state.products)
     const sections = useSelector(state => state.sections.data)
     const [loading, setLoading] = useState(true)
     const [query, setQuery] = useState('')
     const [filterOpen, setFilterOpen] = useState(false)
-    // const [products, setProducts] = useState([])
     const [section, setSection] = useState(0)
     const [order, setOrder] = useState(2)
     const [page, setPage] = useState(0)
+    
+    const debounceSearch = useDebounce(query)
 
     const getData = async () => {
-        console.log(parseInt(total))
-        console.log(products.length)
-        console.log(endList())
-        if(!endList()) {
+        if (!endList()) {
             try {
                 setLoading(true)
                 if (page == 0) dispatch({ type: RESET_PRODUCTS, payload: 0 })
-                const { data } = await api.post('/products', { section, ...orders[order], page, perPage: 2 })
-                
+                const { data } = await api.post('/products', { section, query, ...orders[order], page, perPage: 2 })
+
                 dispatch({ type: SET_PRODUCTS, payload: data })
                 setLoading(false)
             } catch (response) {
                 console.log('Erro na requisiçao')
             }
-        } else {
-            console.log('end list')
         }
     }
 
     useEffect(() => {
         dispatch({ type: RESET_PRODUCTS, payload: 0 })
         setPage(0)
-    }, [section, order])
+    }, [section, order, debounceSearch])
 
     useEffect(() => {
         getData()
@@ -69,23 +67,27 @@ const Shop = () => {
 
     const endList = () => products.length > 0 && parseInt(total) <= products.length
 
+    const handleAddCart = (product: Product) => {
+        console.log(product)
+    }
+
     const renderItem = (product) => {
         const { name, price, id } = product.item
-        const source = { uri: `http://10.0.2.2:3333/products/${id}/image` }
+        const source = { uri: `http://localhost:3333/products/${id}/image` }
         return (
             <Surface style={styles.surface}>
                 <Image source={source} style={styles.image} />
                 <View style={styles.containerProduct}>
                     <View style={styles.containerDetail}>
-                        <Subheading>{ name }</Subheading>
+                        <Subheading>{name}</Subheading>
                         <View style={styles.containerPrice}>
                             <Text style={styles.cipher}>R$</Text>
-                            <Text style={styles.price}>{ price }</Text>
+                            <Text style={styles.price}>{price}</Text>
                         </View>
                     </View>
                     <View style={styles.containerAction}>
-                        <IconButton icon="receipt" color={Colors.red500} size={30} onPress={() => console.log('Pressed')} />
-                        <IconButton icon={require('../assets/cart.png')} color={Colors.blue500} size={30} onPress={() => console.log('Pressed')} />
+                        <IconButton icon="receipt" color={Colors.pinkA400} size={30} onPress={() => console.log('Pressed')} />
+                        <IconButton icon={require('../assets/cart.png')} color={Colors.deepPurpleA700} size={30} onPress={() => handleAddCart(product.item)} />
                     </View>
                 </View>
             </Surface>
@@ -94,7 +96,7 @@ const Shop = () => {
 
     const renderLoading = () => {
         if (endList()) return <Text style={styles.fullProducts}>Não há mais produtos</Text>
-        if(!loading) return null
+        if (!loading) return null
         return <LoaderProducts loading={true} num={3} />
     }
 
@@ -102,8 +104,10 @@ const Shop = () => {
         <>
             <View style={styles.containerNav}>
                 <Searchbar
-                    placeholder="Search"
+                    placeholder="Pesquisar"
                     onChangeText={text => setQuery(text)}
+                    onEndEditing={() => getData()}
+                    onIconPress={() => getData()}
                     value={query} style={styles.searchBar}
                 />
                 <IconButton icon="filter-list" color={Colors.grey500} style={styles.iconButtonFilter}
@@ -114,10 +118,10 @@ const Shop = () => {
             {filterOpen && (
                 <View style={styles.containerFilter}>
                     <Select label="Seção" data={sections} selected={section} onChange={setSection} />
-                    <Select label="Ordenar" data={orderOptions} selected={order} onChange={setOrder} all="" style={{ height: 30, width: 200 }} />
+                    <Select label="Ordenar" data={orderOptions} selected={order} onChange={setOrder} />
                 </View>
             )}
-            
+
             <FlatList
                 data={products}
                 renderItem={product => renderItem(product)}
@@ -126,14 +130,21 @@ const Shop = () => {
                 onEndReachedThreshold={0.1}
                 ListFooterComponent={renderLoading}
             />
-            {/* <LoaderProducts loading={true} num={3} /> */}
-            {/* {renderItem()}
-            {renderItem()} */}
         </ >
     )
 }
+ 
+Shop.navigationOptions = ({ navigation }) => ({
+    header: () => <Header navigation={navigation} />
+})
+
 
 const styles = StyleSheet.create({
+    badge: {
+        position: 'absolute',
+        top: 2,
+        right: 2,
+    },
     containerNav: {
         marginVertical: 8,
         flexDirection: 'row',
