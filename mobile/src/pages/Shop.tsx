@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, FlatList, Image } from 'react-native'
-import { Searchbar, Surface, Subheading, Text, IconButton, Colors } from 'react-native-paper'
+import { View, StyleSheet, FlatList, Image, TouchableHighlight } from 'react-native'
+import { Searchbar, Surface, Subheading, Text, IconButton, Colors, Button } from 'react-native-paper'
 import { useDispatch, useSelector } from 'react-redux'
 
 import api from '../services/api'
 import { Product } from '../services/types'
 import { SET_PRODUCTS, RESET_PRODUCTS } from '../store/actionTypes'
 import useDebounce from '../services/hooks/useDebounce'
-import { Select, LoaderProducts, Header } from './Components'
+import { Select, LoaderProducts, Header, ModalCartItem } from './Components'
 // import { IconCart } from './Components'
 
 const orderOptions = [
@@ -29,6 +29,7 @@ const Shop = ({ navigation }) => {
     const { data: products, total, cart } = useSelector(state => state.products)
     const sections = useSelector(state => state.sections.data)
     const [loading, setLoading] = useState(true)
+    const [visible, setVisible] = useState(false)
     const [query, setQuery] = useState('')
     const [filterOpen, setFilterOpen] = useState(false)
     const [section, setSection] = useState(0)
@@ -68,6 +69,7 @@ const Shop = ({ navigation }) => {
     const endList = () => products.length > 0 && parseInt(total) <= products.length
 
     const handleAddCart = (product: Product) => {
+        setVisible(true)
         console.log(product)
     }
 
@@ -77,7 +79,10 @@ const Shop = ({ navigation }) => {
         return (
             <Surface style={styles.surface}>
                 <Image source={source} style={styles.image} />
-                <View style={styles.containerProduct}>
+                <TouchableHighlight style={styles.containerProduct}
+                    onPress={() => navigation.navigate('Product', { product: product.item })}
+                >
+                    <>
                     <View style={styles.containerDetail}>
                         <Subheading>{name}</Subheading>
                         <View style={styles.containerPrice}>
@@ -86,10 +91,11 @@ const Shop = ({ navigation }) => {
                         </View>
                     </View>
                     <View style={styles.containerAction}>
-                        <IconButton icon="receipt" color={Colors.pinkA400} size={30} onPress={() => console.log('Pressed')} />
+                        <IconButton icon="receipt" color={Colors.pinkA400} size={30} onPress={() => console.log('Lista')} />
                         <IconButton icon={require('../assets/cart.png')} color={Colors.deepPurpleA700} size={30} onPress={() => handleAddCart(product.item)} />
                     </View>
-                </View>
+                    </>
+                </TouchableHighlight>
             </Surface>
         )
     }
@@ -99,6 +105,8 @@ const Shop = ({ navigation }) => {
         if (!loading) return null
         return <LoaderProducts loading={true} num={3} />
     }
+
+    const modalDismiss = () => setVisible(false)
 
     return (
         <>
@@ -130,6 +138,9 @@ const Shop = ({ navigation }) => {
                 onEndReachedThreshold={0.1}
                 ListFooterComponent={renderLoading}
             />
+
+            <ModalCartItem visible={visible} dismiss={modalDismiss} />
+           
         </ >
     )
 }

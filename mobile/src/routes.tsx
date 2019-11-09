@@ -12,6 +12,7 @@ import History from './pages/History'
 import Lists from './pages/Lists'
 import Settings from './pages/Settings'
 import Shop from './pages/Shop'
+import Product from './pages/Product'
 import { Header } from './pages/Components'
 
 const createTabOption = (screen, title, icon) => {
@@ -50,7 +51,7 @@ const navOption = {
 }
 
 const ShopStack = createStackNavigator({
-  Products: Shop, 
+  Products: Shop, Product
 }, navOption)
 
 const Home = createMaterialBottomTabNavigator({

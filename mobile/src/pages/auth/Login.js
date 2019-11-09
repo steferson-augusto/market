@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { AsyncStorage, View, StyleSheet, Image } from 'react-native'
+import { View, StyleSheet, Image } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
 import { Button, TouchableRipple, TextInput, HelperText } from 'react-native-paper'
 import { useDispatch } from 'react-redux'
 import { SwitchActions } from 'react-navigation'

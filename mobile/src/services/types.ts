@@ -15,3 +15,13 @@ export interface Section {
     id: number
     name: string
 }
+
+export interface CartItem {
+    product: Product
+    quantity: number
+}
+
+export interface Cart {
+    products: Array<CartItem>
+    total: number
+}

@@ -5,7 +5,7 @@ import { Colors } from 'react-native-paper'
 import Routes from './src/routes'
 
 YellowBox.ignoreWarnings([
-  "Remote debugger"
+  'Remote debugger', 'componentWillReceiveProps', 
 ])
 const App = () => {
   return (

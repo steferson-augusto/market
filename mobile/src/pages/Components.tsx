@@ -5,14 +5,15 @@ import { Appbar, Badge, Text, Surface, Colors, IconButton, Paragraph, Button } f
 import { Placeholder, PlaceholderMedia, PlaceholderLine, Shine } from 'rn-placeholder'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
 import Popover from 'react-native-popover-view'
+import Modal from 'react-native-modal'
+import LottieView from 'lottie-react-native'
 
-export const IconCart = () => <IconMaterial name="shopping-cart" size={24} color="white" />
+export const IconCart = ({ size = 24, color = '#fff' }) => <IconMaterial name="shopping-cart" size={size} color={color} />
 
 export const Header = ({ navigation }) => {
-    const cart = useSelector(state => state.products.cart)
+    const { products, total } = useSelector(state => state.cart)
     const [visible, setVisible] = useState(false)
     const ref = useRef()
-    const total = cart.reduce((total, { price, quantity }) => total = total + (price * quantity), 0)
 
     const renderItem = (product) => {
         const { name, price, id, quantity } = product.item
@@ -39,10 +40,10 @@ export const Header = ({ navigation }) => {
     return (
         <Appbar.Header>
             <Appbar.Action icon='add' color='transparent' />
-            <Appbar.Content title='PRODUTOS' titleStyle={{alignSelf: "center"}} />
+            <Appbar.Content title='PRODUTOS' titleStyle={{ alignSelf: "center" }} />
 
             <Appbar.Action icon={IconCart} onPress={() => setVisible(!visible)} ref={ref} />
-            {cart.length > 0 && <Badge style={styles.badge}>{cart.length}</Badge>}
+            {products.length > 0 && <Badge style={styles.badge}>{products.length}</Badge>}
 
             <Popover
                 isVisible={visible}
@@ -52,22 +53,44 @@ export const Header = ({ navigation }) => {
                 backgroundStyle={{ backgroundColor: 'transparent' }}
                 popoverStyle={styles.popoverHeader}
             >
-                <>
-                    <FlatList
-                        data={cart} style={{ height: 300 }}
-                        renderItem={product => renderItem(product)}
-                        keyExtractor={(item, index) => `${index}`}
-                        showsVerticalScrollIndicator={false}
-                    />
-                    <View style={styles.containerPopoverButton}>
-                        <Text style={{ flex: 1, color: '#eee', fontSize: 18 }}>{`R$ ${total}`}</Text>
-                        <Button mode="contained" color={Colors.pinkA400}>FINALIZAR</Button>
-                    </View>
-                </>
+
+                {products.length > 0 ? (
+                    <>
+                        <FlatList
+                            data={products} style={{ height: 300 }}
+                            renderItem={product => renderItem(product)}
+                            keyExtractor={(item, index) => `${index}`}
+                            showsVerticalScrollIndicator={false}
+                        />
+                        {total > 0 && (
+                            <View style={styles.containerPopoverButton}>
+                                <Text style={{ flex: 1, color: '#eee', fontSize: 18 }}>{`R$ ${total}`}</Text>
+                                <Button mode="contained" color={Colors.pinkA400}>FINALIZAR</Button>
+                            </View>
+                        )}
+                    </>
+                ) : (
+                    <LottieView style={{ height: 200, width: 200, alignSelf: 'center' }}
+                    source={require('../assets/animations/empty_cart.json')} autoPlay loop />
+                )}
+
             </Popover>
         </Appbar.Header>
     )
 }
+
+export const ModalCartItem = ({ visible, dismiss }) => (
+    <Modal isVisible={visible}
+        onBackdropPress={dismiss}
+        onSwipeComplete={dismiss}
+        swipeDirection={['down', 'up']}
+    >
+        <View style={{ height: 200, backgroundColor: '#bbb' }}>
+            <Text>Hello!</Text>
+            <Button onPress={dismiss}>FECHAR</Button>
+        </View>
+    </Modal>
+)
 
 export const Select = ({ label, data, onChange, selected = 0, style = styles.select }) => {
     return (
@@ -76,10 +99,10 @@ export const Select = ({ label, data, onChange, selected = 0, style = styles.sel
             <Picker mode='dropdown'
                 selectedValue={selected}
                 style={style} itemStyle={{ fontWeight: 'bold' }}
-                onValueChange={(itemValue, itemIndex) => onChange(itemValue) }
+                onValueChange={(itemValue, itemIndex) => onChange(itemValue)}
             >
                 {/* {(all !== '') && <Picker.Item label={all} value={false} />} */}
-                {data.map(({ id, name }) => <Picker.Item label={name} value={id} key={`${id}`} /> )}
+                {data.map(({ id, name }) => <Picker.Item label={name} value={id} key={`${id}`} />)}
             </Picker>
         </Surface>
     )
@@ -100,10 +123,10 @@ export const LoaderProduct = () => {
                 )}
             >
                 {/* <PlaceholderMedia style={styles.imageProduct} /> */}
-               
-                    <PlaceholderLine style={styles.titleProduct} />
-                    <PlaceholderLine style={styles.priceProduct} />
-              
+
+                <PlaceholderLine style={styles.titleProduct} />
+                <PlaceholderLine style={styles.priceProduct} />
+
             </Placeholder>
         </Surface>
     )
@@ -114,18 +137,18 @@ interface LoaderProductsProps {
     loading: boolean
 }
 export const LoaderProducts = ({ num = 1, loading }: LoaderProductsProps) => (
-    (loading && 
+    (loading &&
         <>
             {Array(num).fill(num).map((n, index) => <LoaderProduct key={`${index}`} />)}
-        </>    
+        </>
     )
 )
 
 const styles = StyleSheet.create({
     badge: {
-      position: 'absolute',
-      top: 5,
-      right: 5,
+        position: 'absolute',
+        top: 5,
+        right: 5,
     },
     select: {
         height: 30,
