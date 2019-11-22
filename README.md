@@ -1,4 +1,4 @@
-## ROLE PLAYING GAME
+## NOME DO PROJETO??
 
 [TOC]
 
@@ -25,26 +25,60 @@
 ##### MOBILE
 
 ###### Dependencies
-* [@react-native-community/async-storage] - ^1.6.1
-- axios: "^0.19.0"
-* [react] - "16.8.6"
-- react-native: "0.60.5"
-- react-native-gesture-handler: "^1.3.0"
-- react-native-paper: "^2.16.0"
-- react-native-vector-icons: "^6.6.0"
-- react-navigation: "^3.11.1"
+- "@react-native-community/async-storage": "^1.6.2",
+- "axios": "^0.19.0",
+- "lottie-ios": "3.1.3",
+- "lottie-react-native": "^3.2.1",
+- "react": "16.9.0",
+- "react-native": "0.61.2",
+- "react-native-fast-image": "^7.0.2",
+- "react-native-fbsdk": "^1.0.4",
+- "react-native-gesture-handler": "^1.4.1",
+- "react-native-google-signin": "^2.1.0",
+- "react-native-modal": "^11.5.1",
+- "react-native-numeric-input": "^1.8.3",
+- "react-native-paper": "^2.16.0",
+- "react-native-popover-view": "^2.0.5",
+- "react-native-reanimated": "^1.3.0",
+- "react-native-vector-icons": "^6.6.0",
+- "react-navigation": "^4.0.10",
+- "react-navigation-material-bottom-tabs": "^2.1.2",
+- "react-navigation-stack": "^1.9.3",
+- "react-redux": "^7.1.1",
+- "redux": "^4.0.4",
+- "rn-placeholder": "^3.0.0"
 
 ###### Dev dependencies
-- @babel/core: "^7.5.5"
-- @babel/runtime: "^7.5.5"
-- @react-native-community/eslint-config: "^0.0.5"
-- babel-jest: "^24.9.0"
-- eslint: "^6.1.0"
-- jest: "^24.9.0"
-- metro-react-native-babel-preset: "^0.56.0"
-- react-test-renderer: "16.8.6"
+- "@babel/core": "^7.6.2",
+- "@babel/runtime": "^7.6.2",
+- "@react-native-community/eslint-config": "^0.0.5",
+- "@types/jest": "^24.0.18",
+- "@types/react": "16.9.0",
+- "@types/react-native": "^0.60.17",
+- "@types/react-test-renderer": "16.9.0",
+- "babel-jest": "^24.9.0",
+- "jest": "^24.9.0",
+- "metro-react-native-babel-preset": "^0.56.0",
+- "react-test-renderer": "16.9.0",
+- "typescript": "^3.6.3"
 
+##### WEB ADMIN
 
+###### Dependencies
+- "@devexpress/dx-react-core": "^2.0.4",
+- "@devexpress/dx-react-grid": "^2.0.4",
+- "@devexpress/dx-react-grid-material-ui": "^2.0.4",
+- "@material-ui/core": "^4.3.3",
+- "@material-ui/icons": "^4.2.1",
+- "axios": "^0.19.0",
+- "react": "^16.9.0",
+- "react-dom": "^16.9.0",
+- "react-facebook-login": "^4.1.1",
+- "react-google-login": "^5.0.5",
+- "react-number-format": "^4.2.0",
+- "react-router-dom": "^5.0.1",
+- "react-scripts": "3.1.1",
+- "react-social-login-buttons": "^3.0.0"
 
 [@react-native-community/async-storage]: <https://github.com/react-native-community/async-storage/>
 [react]: <https://pt-br.reactjs.org/>
