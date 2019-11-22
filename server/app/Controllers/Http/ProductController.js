@@ -7,39 +7,34 @@ const select = ['products.id', 'products.name', 'products.description', 'product
   'marks.name as mark', 'sections.name as section', 'ums.abbreviation as um']
 
 class ProductController {
-  /**
-   * Show a list of all products.
-   * GET products
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, params }) {
+  async index ({ request, response }) {
     try {
+      const { direction, columnName, section, page, perPage, query } = request.only(['direction', 'columnName', 'section', 'page', 'perPage', 'query']) 
       const products = await Database.table('products')
+        .where(function() {
+          this.where('products.active', true)
+          if (query) this.where('products.name', 'like', `%${query}%`)
+        })
+        .where(function() {
+          this.where('sections.active', true).where('products.section_id', section > 0 ? '=' : '>' , section)
+          if (section == 0) this.orWhereNull('products.section_id')
+        })
+        .where(function() {
+          this.where('marks.active', true).orWhereNull('products.mark_id')
+        })
         .leftJoin('marks', 'products.mark_id', 'marks.id')
         .leftJoin('sections', 'products.section_id', 'sections.id')
         .leftJoin('ums', 'products.um_id', 'ums.id')
         .select(select)
-      return response.status(200).send(products)
+        .orderBy(`products.${columnName}`, direction)
+        .paginate(page + 1, perPage)
 
-      // const all = Database.table('products').query()
+      return response.status(200).send(products)
     } catch {
       return response.status(500).send(responseError())
     }
   }
 
-  /**
-   * Display a single product.
-   * GET products/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
   async show ({ params, request, response, view }) {
   }
 

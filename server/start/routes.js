@@ -56,7 +56,7 @@ Route.post('/admin/products', 'adminControllers/ProductController.store').middle
 Route.put('/admin/products/:id', 'adminControllers/ProductController.update').middleware(['auth', 'admin'])
 
 //============================== Products ==================================
-Route.get('products', 'ProductController.index').middleware('auth')
+Route.post('products', 'ProductController.index').middleware('auth')
 Route.post('products/:id/image', 'ImageController.store').middleware('auth')
 Route.get('products/:id/image', 'ImageController.show')
 Route.get('sections', 'SectionController.index').middleware('auth')
