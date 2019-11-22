@@ -8,6 +8,7 @@ import { Product } from '../services/types'
 import { SET_PRODUCTS, RESET_PRODUCTS } from '../store/actionTypes'
 import useDebounce from '../services/hooks/useDebounce'
 import { Select, LoaderProducts, Header, ModalCartItem } from './Components'
+import { numberToPrice } from '../services/utils'
 // import { IconCart } from './Components'
 
 const orderOptions = [
@@ -87,7 +88,7 @@ const Shop = ({ navigation }) => {
                         <Subheading>{name}</Subheading>
                         <View style={styles.containerPrice}>
                             <Text style={styles.cipher}>R$</Text>
-                            <Text style={styles.price}>{price}</Text>
+                            <Text style={styles.price}>{numberToPrice(price)}</Text>
                         </View>
                     </View>
                     <View style={styles.containerAction}>

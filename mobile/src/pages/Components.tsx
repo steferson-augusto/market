@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
-import { useSelector } from 'react-redux'
-import { StyleSheet, Picker, FlatList, Image, View } from 'react-native'
+import { useSelector, useDispatch } from 'react-redux'
+import { StyleSheet, Picker, FlatList, Image, View, TouchableNativeFeedback, TouchableNativeFeedbackBase } from 'react-native'
 import { Appbar, Badge, Text, Surface, Colors, IconButton, Paragraph, Button } from 'react-native-paper'
 import { Placeholder, PlaceholderMedia, PlaceholderLine, Shine } from 'rn-placeholder'
 import IconMaterial from 'react-native-vector-icons/MaterialIcons'
@@ -8,32 +8,41 @@ import Popover from 'react-native-popover-view'
 import Modal from 'react-native-modal'
 import LottieView from 'lottie-react-native'
 
+import { DEL_FROM_CART } from '../store/actionTypes'
+import { numberToPrice } from '../services/utils'
+
 export const IconCart = ({ size = 24, color = '#fff' }) => <IconMaterial name="shopping-cart" size={size} color={color} />
 
 export const Header = ({ navigation }) => {
+    const dispatch = useDispatch()
     const { products, total } = useSelector(state => state.cart)
     const [visible, setVisible] = useState(false)
     const ref = useRef()
 
-    const renderItem = (product) => {
-        const { name, price, id, quantity } = product.item
+    const removeItem = (quantity, { id, price }) => dispatch({ type: DEL_FROM_CART, payload: { id, price: price * quantity } })
+
+    const renderItem = ({ item }) => {
+        const { quantity, product } = item
+        const { name, price, id } = product
         const source = { uri: `http://localhost:3333/products/${id}/image` }
         return (
+            <TouchableNativeFeedback onPress={() => navigation.navigate('Product', { product })}>
             <Surface style={styles.containerItem}>
                 <Image source={source} style={styles.image} />
                 <View style={styles.containerProduct}>
                     <View style={styles.containerDetail}>
-                        <Paragraph>{name}</Paragraph>
+                        <Paragraph numberOfLines={1}>{name}</Paragraph>
                         <View style={styles.containerPrice}>
                             <Text style={styles.cipher}>{`${quantity} x R$`}</Text>
-                            <Text style={styles.price}>{price}</Text>
+                            <Text style={styles.price}>{numberToPrice(price)}</Text>
                         </View>
                     </View>
                     <View style={styles.containerAction}>
-                        <IconButton icon="delete" color='#1c227e' size={30} onPress={() => console.log('Pressed')} />
+                        <IconButton icon="delete" color='#1c227e' size={30} onPress={() =>removeItem(quantity, product)} />
                     </View>
                 </View>
             </Surface>
+            </TouchableNativeFeedback>
         )
     }
 
@@ -53,18 +62,17 @@ export const Header = ({ navigation }) => {
                 backgroundStyle={{ backgroundColor: 'transparent' }}
                 popoverStyle={styles.popoverHeader}
             >
-
                 {products.length > 0 ? (
                     <>
                         <FlatList
                             data={products} style={{ height: 300 }}
-                            renderItem={product => renderItem(product)}
+                            renderItem={item => renderItem(item)}
                             keyExtractor={(item, index) => `${index}`}
                             showsVerticalScrollIndicator={false}
                         />
                         {total > 0 && (
                             <View style={styles.containerPopoverButton}>
-                                <Text style={{ flex: 1, color: '#eee', fontSize: 18 }}>{`R$ ${total}`}</Text>
+                                <Text style={{ flex: 1, color: '#eee', fontSize: 18 }}>{numberToPrice(total, 'R$')}</Text>
                                 <Button mode="contained" color={Colors.pinkA400}>FINALIZAR</Button>
                             </View>
                         )}
